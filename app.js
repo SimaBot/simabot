@@ -28,7 +28,7 @@ const he = require('he');
 const axios = require('axios');
 
 // ------- Important -------
-const useBeta = false;
+const useBeta = true;
 const envGenerate = false;
 // -------------------------
 
@@ -41,16 +41,26 @@ if(process.env.SECRET){
     process.exit(1);
   }
 }else{
-  // check if file exists
-  if(fs.existsSync('./secret/secret.json')){
-    secret = require('./secret/secret.json');
-  }else{
-    console.log('No secret file found. Please create one.');
-    process.exit();
+   // secret2 uses base64
+  if (process.env.SECRET2) {
+    try {
+      secret = JSON.parse(Buffer.from(process.env.SECRET2, 'base64').toString());
+    } catch (error) {
+      console.log('Secret2 error');
+      process.exit(1);
+    }
+  } else {
+    // check if file exists
+    if(fs.existsSync('./secret/secret.json')){
+      secret = require('./secret/secret.json');
+    }else{
+      console.log('No secret file found. Please create one.');
+      process.exit();
+    }
   }
 }
 if(envGenerate){
-  fs.writeFileSync('.env', "SECRET='" + JSON.stringify(secret) + "'");
+  fs.writeFileSync('.env', "SECRET2='" + Buffer.from(JSON.stringify(secret)).toString('base64') + "'");
   console.log('Generated .env file');
   process.exit();
 }

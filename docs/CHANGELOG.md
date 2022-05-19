@@ -3,6 +3,8 @@
 **SIMABOT 3.0.0:**
 - Secret as environment variable (important).
 - Tool to convert the secrets to environment variables.
+**SIMABOT 3.0.1:**
+- SECRET2 environment variable, which is the same as SECRET, but encoded in base64.
 **TODO:**
 - Auto convert secrets to environment variables.
 - Show URL for connect discord bot (on website or console.log).
