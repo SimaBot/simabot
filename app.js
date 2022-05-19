@@ -26,9 +26,19 @@ const fs = require('fs');
 const pjf = require('./package.json');
 const he = require('he');
 const axios = require('axios');
+const express = require("express");
+const app = express();
+
+app.listen(process.env.PORT || 3000, () => {
+
+});
+
+app.get("/", (req, res) => {
+  res.send("Hello world!");
+});
 
 // ------- Important -------
-const useBeta = true;
+const useBeta = false;
 const envGenerate = false;
 // -------------------------
 

@@ -5,7 +5,12 @@
 - Tool to convert the secrets to environment variables.
 **SIMABOT 3.0.1:**
 - SECRET2 environment variable, which is the same as SECRET, but encoded in base64.
+**SIMABOT 3.0.2:**
+- Forgot disable beta.
+- Now runs server, which allows to run the bot on repl.it.
 **TODO:**
+- Multiple instances of the bot.
+- Auto beta mode.
 - Auto convert secrets to environment variables.
 - Show URL for connect discord bot (on website or console.log).
 - Remove unused dependencies.
