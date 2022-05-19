@@ -31,12 +31,14 @@ exports.setBranch = function(name) {
 
 const dbNames = ['botdb', 'goodwords', 'config', 'notifer', 'badwords'];
 
-var serviceAccount = require("./secret/fb.json");
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: serviceAccount.databaseURL
-});
+var fdb;
+exports.init = async function (serviceAccount) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: serviceAccount.databaseURL
+  });
+  fdb = admin.firestore();
+}
 
 function log(msg) {
   if(debug){
@@ -44,7 +46,6 @@ function log(msg) {
   }
 }
 
-const fdb = admin.firestore();
 
 var dbCache = {};
 var lsCache = {};

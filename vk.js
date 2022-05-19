@@ -2,7 +2,7 @@ const axios = require('axios');
 const jsdom = require('jsdom');
 const debug = false;
 
-const proxy = '/?';
+const prefix = '/?';
 function parseImage(html, id) { // default 1
   // console.log(html);
   const d = new jsdom.JSDOM(html).window.document;
@@ -18,7 +18,7 @@ function parseImage(html, id) { // default 1
 }
 
 exports.getGroup = async function (id, idpost) {
-  const url = proxy + 'https://m.vk.com/' + id;
+  const url = prefix + 'https://m.vk.com/' + id;
   if(debug){
     console.log('Request url: ' + url);
   }

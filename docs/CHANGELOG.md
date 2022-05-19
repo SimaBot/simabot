@@ -1,8 +1,10 @@
 **SIMABOT 2.9.9:**
-- Initial.
-**TODO:**
+- Initial open-source release.
+**SIMABOT 3.0.0:**
 - Secret as environment variable (important).
 - Tool to convert the secrets to environment variables.
+**TODO:**
+- Auto convert secrets to environment variables.
 - Show URL for connect discord bot (on website or console.log).
 - Remove unused dependencies.
 - Automatic training.

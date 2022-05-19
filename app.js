@@ -3,10 +3,6 @@ const TelegramBot = require('node-telegram-bot-api');
 // const Discordself = require("discord-user-bots");
 const Discord = require('discord.js');
 const { Permissions } = require('discord.js');
-const selfBot = false;
-
-let secret = require('./secret/secret.json');
-
 const googleT = require('./translate.js');
 const random = require('./random.js');
 const webutils = require('./webutils.js');
@@ -19,12 +15,12 @@ const nnotifer = require('./newnotifer.js');
 
 // const clientself = new Discordself.Client(secret.selfdiscord);
 const robot = new Discord.Client({partials: ["CHANNEL"],
-	intents: [
-		'GUILDS',
-		'GUILD_VOICE_STATES',
-		'GUILD_MESSAGES',
-		'DIRECT_MESSAGES'
-	],
+intents: [
+  'GUILDS',
+  'GUILD_VOICE_STATES',
+  'GUILD_MESSAGES',
+  'DIRECT_MESSAGES'
+],
 });
 const fs = require('fs');
 const pjf = require('./package.json');
@@ -32,10 +28,38 @@ const he = require('he');
 const axios = require('axios');
 
 // ------- Important -------
-const useBeta = true;
+const useBeta = false;
+const envGenerate = false;
 // -------------------------
+
+var secret = null;
+if(process.env.SECRET){
+  try {
+    secret = JSON.parse(process.env.SECRET);
+  } catch (error) {
+    console.log('Secret is not valid JSON');
+    process.exit(1);
+  }
+}else{
+  // check if file exists
+  if(fs.existsSync('./secret/secret.json')){
+    secret = require('./secret/secret.json');
+  }else{
+    console.log('No secret file found. Please create one.');
+    process.exit();
+  }
+}
+if(envGenerate){
+  fs.writeFileSync('.env', "SECRET='" + JSON.stringify(secret) + "'");
+  console.log('Generated .env file');
+  process.exit();
+}
+
+db.init(secret);
+
 const allowCrash = false;
 const enableConsole = useBeta;
+const selfBot = false;
 
 var branchName = 'stable';
 if(useBeta){

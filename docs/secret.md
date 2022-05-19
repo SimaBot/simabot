@@ -1,12 +1,20 @@
 # Secret directory information
-## fb.json
+## secret.json
 
 ### What is it?
-This is a JSON file that contains the credentials for the Firebase service account.
+This is a JSON file that contains the credentials for the Firebase service account, for the Discord bot, Telegram bot, Beta versions.
 
 ### Content
 ```json
 {
+    "stable": {
+        "discord": "Your token for Discord bot",
+        "telegram": "Your token for Telegram bot"
+    },
+    "beta": {
+        "discord": "Your token for Discord bot",
+        "telegram": "Your token for Telegram bot"
+    },
   "type": "service_account",
   "project_id": "HIDDEN",
   "private_key_id": "HIDDEN",
@@ -17,23 +25,6 @@ This is a JSON file that contains the credentials for the Firebase service accou
   "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
   "client_x509_cert_url": "HIDDEN",
   "databaseURL": "HIDDEN"
-}
-
-```
-## secret.json
-
-### What is it?
-This is a JSON file that contains the credentials for the Discord bot, Telegram bot, Beta versions.
-```json
-{
-    "stable": {
-        "discord": "Your token for Discord bot",
-        "telegram": "Your token for Telegram bot"
-    },
-    "beta": {
-        "discord": "Your token for Discord bot",
-        "telegram": "Your token for Telegram bot"
-    }
 }
 ```
 You don't need beta credentials, if you don't want to use beta mode.
