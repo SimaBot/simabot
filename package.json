@@ -27,8 +27,8 @@
     "ytdl-core": "^4.11.0",
     "node": "^17.x.x"
   },
-  "name": "simabot",
-  "version": "3.0.4",
+  "name": "@simabot/simabot",
+  "version": "3.0.5",
   "description": "Interactive bot for Discord/Telegram.",
   "main": "app.js",
   "scripts": {
@@ -37,7 +37,7 @@
   },
   "engines": {
     "node": "17.x.x",
-    "npm": "8.10.0"
+    "npm": "8.x.x"
   },
   "repository": {
     "type": "git",
@@ -51,5 +51,9 @@
   "bugs": {
     "url": "https://github.com/SimaBot/simabot/issues"
   },
-  "homepage": "https://simabot.github.io/"
+  "homepage": "https://simabot.github.io/",
+  "directories": {
+    "doc": "docs"
+  },
+  "devDependencies": {}
 }

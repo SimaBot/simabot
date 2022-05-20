@@ -12,6 +12,9 @@
 - Added support for Repl.it.
 **SIMABOT 3.0.4:**
 - Fixed bug with Repl.it.
+**SIMABOT 3.0.5:**
+- Fixed bug with Repl.it.
+- Initial NPM support.
 **TODO:**
 - Multiple instances of the bot.
 - Auto beta mode.
