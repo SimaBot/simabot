@@ -10,6 +10,8 @@
 - Now runs server, which allows to run the bot on repl.it.
 **SIMABOT 3.0.3:**
 - Added support for Repl.it.
+**SIMABOT 3.0.4:**
+- Fixed bug with Repl.it.
 **TODO:**
 - Multiple instances of the bot.
 - Auto beta mode.

@@ -24,10 +24,11 @@
     "translatte": "^3.0.1",
     "websocket": "^1.0.34",
     "xml-js": "^1.6.11",
-    "ytdl-core": "^4.11.0"
+    "ytdl-core": "^4.11.0",
+    "node": "^17.x.x"
   },
   "name": "simabot",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "description": "Interactive bot for Discord/Telegram.",
   "main": "app.js",
   "scripts": {
@@ -35,7 +36,7 @@
     "start": "node app.js"
   },
   "engines": {
-    "node": "18.1.x",
+    "node": "17.x.x",
     "npm": "8.10.0"
   },
   "repository": {
