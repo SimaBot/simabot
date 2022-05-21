@@ -94,7 +94,8 @@ exports.strings = {
     andThisIs: 'И это у нас уже',
     eta: 'Также должны выйти ёще',
     lang: 'ru',
-    discordReady: 'Connected to Discord! Invite: '
+    discordReady: 'Connected to Discord! Invite: ',
+    issueGH: 'https://api.github.com/repos/SimaBot/simabot/issues'
 }
 //  (Sad to hear your leave) ${member}!
 // Welcome msg // TODO:

@@ -19,11 +19,15 @@
 - Progress: Moving string to textdb.
 - Show URL in console for invite Discord bot.
 
+**SIMABOT 3.1.1:**
+- Create issue on GitHub.
+
 **TODO:**
 - Offline mode.
 - Multiple instances of the bot.
 - Remove unused dependencies.
-- Create issue on GitHub.
+- Better error handling.
+- Disable discord log channel (use github issues).
 - Automatic training.
 - Disabled translator.
 - Role assignment.

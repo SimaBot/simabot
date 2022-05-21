@@ -28,7 +28,7 @@
     "node": "^17.x.x"
   },
   "name": "@simabot/simabot",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "description": "Interactive bot for Discord/Telegram.",
   "main": "app.js",
   "scripts": {

@@ -111,6 +111,63 @@ var users = [];
 
 var tgbot;
 
+async function indexOfIssueGH(title) {
+  const res = await axios.get(textdb.strings.issueGH);
+  const issues = res.data;
+  const t = title.substring(0, 50);
+  for (var i = 0; i < issues.length; i++) {
+    if (issues[i].title.indexOf(t) > -1) {
+      return true;
+    }
+  }
+  return false;
+}
+async function createIssueGH(title, body) {
+  if (!secret.githubtoken){
+    return;
+  }
+  const isRepeat = await indexOfIssueGH(title);
+  if(isRepeat){
+    return;
+  }
+  const issue = {
+    "title": title,
+    "body": body,
+    "labels": [
+      "bug",
+      "simabot"
+    ],
+    "assignees": [
+      "goosesima"
+    ]
+  };
+  const headers = {
+    'Authorization': 'token ' + secret.githubtoken,
+    'Content-Type': 'application/json',
+    'Accept': 'application/vnd.github.v3+json'
+  };
+  try {
+    const res = await axios.post(textdb.strings.issueGH, issue, { headers: headers });
+  } catch (error) {
+    console.log('While creating issue: ');
+    console.log(error.response);
+  }
+}
+
+var issues = [];
+
+function newIssue(title, body) {
+  issues.push([title, body]);
+}
+
+setInterval(async function() {
+  for (let i = 0; i < issues.length; i++) {
+    const e = issues[i];
+    await createIssueGH(e[0], e[1]);
+  }
+  issues = [];
+}, 1000);
+
 function log(e, type) {
   var msg = '';
   var idLogChannel = textdb.strings.idLogChannel;
@@ -123,6 +180,7 @@ function log(e, type) {
   msg = type + ":\n```javascript\n" + String(e).substring(0, 1900) + '```';
   msg += '> (SimaBot⚡) Bot name: ' + textdb.strings.botName + ' v' + String(pjf.version);
   msg += '\n**' + textdb.strings.running + ' ' + branchName + '**';
+  newIssue(String(e).substring(0, 50) + ' ' + textdb.strings.botName + ' ' + branchName + ' v' + String(pjf.version), msg.substring(0, 5000));
 	if(enableConsole){
 		console.log([msg]);
 	}
