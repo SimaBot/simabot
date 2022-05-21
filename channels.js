@@ -1,4 +1,4 @@
-const anime = require('./anime.js');
+const entertainment = require('./entertainment.js');
 // const fourpda = require('./fourpda.js');
 const vk = require('./vk.js');
 const roblox = require('./roblox.js');
@@ -80,7 +80,7 @@ c.rblxcheat = async function (a) {
 }
 c.anime = async function (i) {
   const f = animelist[Number(i)];
-  const e = await anime.anime(f.id);
+  const e = await entertainment.anime(f.id);
   const msgt = anime.msg(e, f.name, f.url);
   return msgt;
 }

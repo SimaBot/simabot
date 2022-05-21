@@ -10,7 +10,7 @@ var simabot = {
 };
 
 async function internet (keywords){
-  var answ = await webutils.questionWikipedia(wordutils.bigFirstLetters(keywords.replaceAll('?', '')));
+  var answ = await webutils.questionWikipedia(wordutils.bigFirstLetters(keywords.replaceAll('?', '')), 'ru'); //TODO
   if(answ){
     if (answ.indexOf('Wikipedia') > -1){
       return;

@@ -3,10 +3,10 @@ const { joinVoiceChannel, demuxProbe, createAudioResource, createAudioPlayer, St
 const webutils = require("./webutils.js");
 const random = require("./random.js");
 const wordutils = require("./wordutils.js");
-
+const textdb = require("./textdb.js");
 var playlistSimaBot = [];
 var robot = null;
-const urlPlaylist = 'https://open.spotify.com/playlist/1KStk0ZBy3f8IsWKNHqbcl?si=12eef76aaaf74daf';
+const urlPlaylist = textdb.strings.spotifyURLPlaylist; // TODO
 var instances = [];
 
 exports.getInstances = function (){

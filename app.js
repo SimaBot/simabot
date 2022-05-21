@@ -34,20 +34,21 @@ app.listen(process.env.PORT || 3000, () => {
 });
 
 app.get("/", (req, res) => {
-  res.send("Hello world!");
+  res.send(textdb.strings.helloWorld);
 });
 
-// ------- Important -------
-const useBeta = false;
-const envGenerate = false;
-// -------------------------
+var useBeta = false;
+
+if(process.env.BETA == "1"){
+  useBeta = true;
+}
 
 var secret = null;
 if(process.env.SECRET){
   try {
     secret = JSON.parse(process.env.SECRET);
   } catch (error) {
-    console.log('Secret is not valid JSON');
+    console.log(textdb.strings.secretError);
     process.exit(1);
   }
 }else{
@@ -56,7 +57,7 @@ if(process.env.SECRET){
     try {
       secret = JSON.parse(Buffer.from(process.env.SECRET2, 'base64').toString());
     } catch (error) {
-      console.log('Secret2 error');
+      console.log(textdb.strings.secret2Error);
       process.exit(1);
     }
   } else {
@@ -69,12 +70,28 @@ if(process.env.SECRET){
     }
   }
 }
-if(envGenerate){
-  fs.writeFileSync('.env', "SECRET2='" + Buffer.from(JSON.stringify(secret)).toString('base64') + "'");
-  console.log('Generated .env file');
-  process.exit();
+
+async function envGenerate(){
+  const content = "SECRET2='" + Buffer.from(JSON.stringify(secret)).toString('base64') + "'";
+  // check if file exists
+  if(fs.existsSync('.env')){
+    var fileContent = null;
+    try {
+      fileContent = fs.readFileSync('.env', 'utf8');
+    } catch (error) {
+      return console.log(error);
+    }
+    if (typeof fileContent === 'string') {
+      if(fileContent.indexOf(content) > -1){
+        return;
+      }
+    }
+  }
+  fs.writeFileSync('.env', content);
+  console.log(textdb.strings.envGenerated);
 }
 
+envGenerate();
 db.init(secret);
 
 const allowCrash = false;
@@ -101,15 +118,13 @@ function log(e, type) {
     idLogChannel = textdb.strings.idLogChannelBeta;
   }
   if(!type){
-    type = 'Error';
+    type = textdb.strings.error;
   }
   msg = type + ":\n```javascript\n" + String(e).substring(0, 1900) + '```';
-	msg += '> SIMABOT v' + String(pjf.version);
-	if(useBeta){
-		msg += '\n**RUNNING BETA VERSION**';
-	}
+  msg += '> (SimaBot⚡) Bot name: ' + textdb.strings.botName + ' v' + String(pjf.version);
+  msg += '\n**' + textdb.strings.running + ' ' + branchName + '**';
 	if(enableConsole){
-		console.log(msg);
+		console.log([msg]);
 	}
 	try {
 		var logCh = robot.channels.cache.get(idLogChannel);
@@ -132,17 +147,17 @@ function managerRoles(name, msg, give) {
   }
   if(member.roles.cache.has(role.id)) {
     if(give){
-      return ', у вас уже есть роль: **' + name + '**';
+      return ', ' + textdb.strings.alreadyExistsRole + ': **' + name + '**';
     }else{
       member.roles.remove(role).catch(console.error);
-      return ', -Role: **' + name + '**';
+      return ', -' + textdb.strings.role + ': **' + name + '**';
     }
   }else{
     if(give){
       member.roles.add(role)
-      return ', +Role: **' + name + '**';
+      return ', +' + textdb.strings.role + ': **' + name + '**';
     }else{
-      return ', у вас и до этого не было роли: **' + name + '**';
+      return ', ' + textdb.strings.alreadyNotExistsRole + ': **' + name + '**';
     }
   }
 }
@@ -170,7 +185,7 @@ async function banHandle() { //TODO: No ban
         robot.users.fetch(userid).then((user) => {
             const server = robot.guilds.cache.get('serverID'); // TODO
             const target = server.members.cache.get(userid);
-            target.ban({ reason: 'Нарушение правил!' });
+            target.ban({ reason: textdb.strings.breakRules }); // TODO: Replace with server specific ban message + reason
             createUser(userid);
             user.send(textdb.unbanMsg,{
               files: [textdb.unbanImg]
@@ -194,7 +209,7 @@ function secToTime(seconds) {
   const timeString = date.toISOString().split('T')[1].split('.')[0];
   const days = Math.floor(s / 86400);
   if (days > 0) {
-    return days + ' days ' + timeString;
+    return days + ' ' + textdb.strings.days + ' ' + timeString;
   } else {
     return timeString;
   }
@@ -233,7 +248,7 @@ robot.on('guildMemberAdd', async member => {
 
 if(!allowCrash){
   robot.on('error', error => {
-    log(error, 'Robot Error');
+    log(error, textdb.strings.robotError);
   });
 }
 
@@ -250,7 +265,9 @@ robot.on("guildMemberRemove", async member => {
   }
 });
 
-function robotready() {
+function robotready(e) {
+  const discordInviteURL = 'https://discord.com/api/oauth2/authorize?client_id=' + e.user.id + '&permissions=8&scope=bot';
+  console.log(textdb.strings.discordReady + '\n' + discordInviteURL);
   notifer_send();
   music.init(robot);
   var oldInfoMusic = null;
@@ -268,7 +285,7 @@ function robotready() {
   }, 1000);
   if (!allowCrash) {
     process.on('uncaughtException', function (error) {
-      log(error.stack, 'Global Error');
+      log(error.stack, textdb.strings.globalError);
     });
   }
   changeStatus();
@@ -387,7 +404,7 @@ const SimaBot = async function (msg){
   const text = msg.text || msg.content;
   const translatedText = await googleT.toRu(text);
   
-  if (text.indexOf('simabot.github.io/') > -1){
+  if (text.indexOf(textdb.strings.domain + '/') > -1){
     if(!isOP){
       return textdb.strings.noOP;
     }

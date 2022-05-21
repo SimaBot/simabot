@@ -1,5 +1,6 @@
 const channels = require('./channels.js');
 const wordutils = require('./wordutils.js');
+const textdb = require('./textdb.js');
 const crypto = require('crypto');
 
 var cache = {};
@@ -44,7 +45,11 @@ exports.parser = function (url) {
         return { error: '03' };
     }
     if (simabot) {
-        if (urlObj.host != 'simabot.github.io') {
+        var domain = 'simabot.github.io';
+        if (typeof textdb !== 'undefined') {
+            domain = textdb.strings.domain;
+        }
+        if (urlObj.host != domain) {
             return { error: '05' };
         }
     }
@@ -87,7 +92,11 @@ function createError (code, url, msg){
 async function get(id, data, url){
     const name = channels.array[id];
     var pt = null;
-    if (name == 'simabot'){
+    var botName = 'simabot';
+    if(typeof textdb !== 'undefined'){
+        botName = textdb.strings.botName;
+    }
+    if (name == botName){
         pt = db.get('0', 'botdb');
     }
     try{

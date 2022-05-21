@@ -7,20 +7,23 @@
 - SECRET2 environment variable, which is the same as SECRET, but encoded in base64.
 **SIMABOT 3.0.2:**
 - Forgot disable beta.
-- Now runs server, which allows to run the bot on repl.it.
-**SIMABOT 3.0.3:**
-- Added support for Repl.it.
+- Now runs web server, which allows to run the bot on repl.it.
 **SIMABOT 3.0.4:**
-- Fixed bug with Repl.it.
+- Added support for Repl.it.
 **SIMABOT 3.0.5:**
 - Fixed bug with Repl.it.
 - Initial NPM support.
-**TODO:**
-- Multiple instances of the bot.
-- Auto beta mode.
+**SIMABOT 3.1.0:**
 - Auto convert secrets to environment variables.
-- Show URL for connect discord bot (on website or console.log).
+- Beta mode when environment variable "BETA" is set "1".
+- Progress: Moving string to textdb.
+- Show URL in console for invite Discord bot.
+
+**TODO:**
+- Offline mode.
+- Multiple instances of the bot.
 - Remove unused dependencies.
+- Create issue on GitHub.
 - Automatic training.
 - Disabled translator.
 - Role assignment.
@@ -28,7 +31,7 @@
 - Account blocking.
 - Ignore channels for bot.
 - Self-learning.
-- Real AI.
+- AI using brain.js.
 - Telegram chat bridge.
 - Minecraft chat bridge.
 - Matrix chat bridge.
@@ -40,3 +43,4 @@
 - Detect explitit nicknames.
 - Add TODO in SimaBot.
 - Add Instagram/Facebook browser/downloader.
+- Port simabot-closedsource to simabot

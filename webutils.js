@@ -130,7 +130,7 @@ exports.isSecure = async function (url) {
     }
   }
   if(domain){
-    const adguardUrl = 'https://reports.adguard.com/ru/' + domain + '/report.html';
+    const adguardUrl = 'https://reports.adguard.com/en/' + domain + '/report.html';
     const greq = await axios.get(adguardUrl);
     const guardReport = greq.data;
     const report = exports.document(guardReport).getElementsByClassName('report')[0].className;
@@ -334,7 +334,7 @@ exports.findVideo = async function (keywords, adds, anyUrl) {
   }
 }
 
-exports.questionWikipedia = async function (text) {
+exports.questionWikipedia = async function (text, lang) {
   var res;
   const duck = await exports.duckIt('site:wikipedia.org ' + text);
   if(duck){
@@ -342,7 +342,7 @@ exports.questionWikipedia = async function (text) {
   }else{
     return;
   }
-  const url = 'https://ru.wikipedia.org/w/api.php?action=query&prop=extracts&format=json&exintro=&titles=' + encodeURI(text);
+  const url = 'https://' + (lang || 'en') + '.wikipedia.org/w/api.php?action=query&prop=extracts&format=json&exintro=&titles=' + encodeURI(text);
   var pages, content;
   try {
     res = await axios.get(url);

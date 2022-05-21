@@ -66,8 +66,35 @@ exports.strings = {
     websiteURL: 'https://simabot.github.io/',
     idLogChannel: '871695676696825906',
     // idModChannelAlt: 'TODO', Alternative channel
-    idLogChannelBeta: '910988806038126622'
+    idLogChannelBeta: '910988806038126622',
     // idLogChannelBetaAlt: 'TODO', Alternative channel
+    running: 'Running',
+    botName: 'SimaBot',
+    error: 'Error',
+    envGenerated: 'Generated .env file',
+    helloWorld: 'Hello World',
+    secretError: 'Secret is not valid JSON',
+    secret2Error: 'Secret2 is not valid JSON / Base64',
+    alreadyExistsRole: 'у вас уже есть роль', 
+    alreadyNotExistsRole: 'у вас и до этого не было роли',
+    role: 'Role',
+    breakRules: 'Нарушение правил',
+    days: 'days',
+    robotError: 'Robot Error',
+    globalError: 'Global Error',
+    domain: 'simabot.github.io',
+    newEpisode: 'Новая серия',
+    details: 'Подробнее',
+    newEpisode2: 'Новая серия аниме/манги/сериала/комикса!',
+    spotifyURLPlaylist: 'https://open.spotify.com/playlist/1KStk0ZBy3f8IsWKNHqbcl?si=12eef76aaaf74daf',
+    seasonName: 'Название сезона',
+    episodeName: 'Название серии',
+    episode: 'серия',
+    episodes: 'серии',
+    andThisIs: 'И это у нас уже',
+    eta: 'Также должны выйти ёще',
+    lang: 'ru',
+    discordReady: 'Connected to Discord! Invite: '
 }
 //  (Sad to hear your leave) ${member}!
 // Welcome msg // TODO:
