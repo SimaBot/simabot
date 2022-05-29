@@ -24,7 +24,23 @@ This is a JSON file that contains the credentials for the Firebase service accou
   "token_uri": "https://oauth2.googleapis.com/token",
   "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
   "client_x509_cert_url": "HIDDEN",
-  "databaseURL": "HIDDEN"
+  "databaseURL": "HIDDEN",
+  "aoid": [{
+    "token": "token",
+    "status": {
+    "text": "Always Online In Discord",
+    "emoji": {
+        "id": null,
+        "name": "ð¿",
+        "animated": false
+      },
+    "status": "online",
+    "afk": false
+    }
+  }]
 }
 ```
 You don't need beta credentials, if you don't want to use beta mode.
+
+Aoid not required, if you don't want to use Always Online In Discord module.
+Aoid logins to user and set status. Supports multiple accounts.

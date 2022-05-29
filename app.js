@@ -12,6 +12,7 @@ const textdb = require('./textdb.js');
 const wordutils = require('./wordutils.js');
 const music = require('./music.js');
 const nnotifer = require('./newnotifer.js');
+const aoid = require('./modules/aoid.js');
 
 // const clientself = new Discordself.Client(secret.selfdiscord);
 const robot = new Discord.Client({partials: ["CHANNEL"],
@@ -92,6 +93,7 @@ async function envGenerate(){
 }
 
 envGenerate();
+aoid.aoid(secret.aoid);
 db.init(secret);
 
 const allowCrash = false;
@@ -116,6 +118,7 @@ async function indexOfIssueGH(title) {
   const issues = res.data;
   const t = title.substring(0, 50);
   for (var i = 0; i < issues.length; i++) {
+    console.log(issues[i].title, t);
     if (issues[i].title.indexOf(t) > -1) {
       return true;
     }

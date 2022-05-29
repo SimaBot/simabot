@@ -18,10 +18,13 @@
 - Beta mode when environment variable "BETA" is set "1".
 - Progress: Moving string to textdb.
 - Show URL in console for invite Discord bot.
-
 **SIMABOT 3.1.1:**
 - Create issue on GitHub.
-
+**SIMABOT 3.1.2:**
+- Reworked issue on GitHub.
+**SIMABOT 3.1.3:**
+- Porting simabot-closedsource to simabot.
+- Added aoid - Always Online In Discord (see more info in docs/secret.md).
 **TODO:**
 - Offline mode.
 - Multiple instances of the bot.
