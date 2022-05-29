@@ -25,6 +25,9 @@
 **SIMABOT 3.1.3:**
 - Porting simabot-closedsource to simabot.
 - Added aoid - Always Online In Discord (see more info in docs/secret.md).
+**SIMABOT 3.1.4:**
+- Ported simabot-closedsource to simabot
+
 **TODO:**
 - Offline mode.
 - Multiple instances of the bot.
@@ -50,4 +53,3 @@
 - Detect explitit nicknames.
 - Add TODO in SimaBot.
 - Add Instagram/Facebook browser/downloader.
-- Port simabot-closedsource to simabot
