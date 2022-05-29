@@ -27,6 +27,8 @@
 - Added aoid - Always Online In Discord (see more info in docs/secret.md).
 **SIMABOT 3.1.4:**
 - Ported simabot-closedsource to simabot
+**SIMABOT 3.1.5:**
+- Update all packages to latest version.
 
 **TODO:**
 - Offline mode.
