@@ -1,36 +1,43 @@
-**SIMABOT 2.9.9:**
+# Changes
+## 2.9.9:
 - Initial open-source release.
-**SIMABOT 3.0.0:**
+## 3.0.0:
 - Secret as environment variable (important).
 - Tool to convert the secrets to environment variables.
-**SIMABOT 3.0.1:**
+## 3.0.1:
 - SECRET2 environment variable, which is the same as SECRET, but encoded in base64.
-**SIMABOT 3.0.2:**
+## 3.0.2:
 - Forgot disable beta.
 - Now runs web server, which allows to run the bot on repl.it.
-**SIMABOT 3.0.4:**
+## 3.0.4:
 - Added support for Repl.it.
-**SIMABOT 3.0.5:**
+## 3.0.5:
 - Fixed bug with Repl.it.
 - Initial NPM support.
-**SIMABOT 3.1.0:**
+## 3.1.0:
 - Auto convert secrets to environment variables.
 - Beta mode when environment variable "BETA" is set "1".
 - Progress: Moving string to textdb.
 - Show URL in console for invite Discord bot.
-**SIMABOT 3.1.1:**
+## 3.1.1:
 - Create issue on GitHub.
-**SIMABOT 3.1.2:**
+## 3.1.2:
 - Reworked issue on GitHub.
-**SIMABOT 3.1.3:**
+## 3.1.3:
 - Porting simabot-closedsource to simabot.
 - Added aoid - Always Online In Discord (see more info in docs/secret.md).
-**SIMABOT 3.1.4:**
+## 3.1.4:
 - Ported simabot-closedsource to simabot
-**SIMABOT 3.1.5:**
+## 3.1.5:
 - Update all packages to latest version.
+## 3.1.6:
+- Fixed https://github.com/SimaBot/simabot/issues/7
+- Added README.md.
+- Fixed CHANGELOG.md.
+- Added webutils.createSprunge
+- Moved rss and tgchannel to webutils.
 
-**TODO:**
+# TODO:
 - Offline mode.
 - Multiple instances of the bot.
 - Remove unused dependencies.

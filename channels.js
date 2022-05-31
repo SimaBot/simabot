@@ -110,93 +110,17 @@ c.url = async function (a) {
   return out;
 }
 c.rss = async function (a) {
-  const out = await webutils.get(a);
-  if(!out){
-    return;
-  }
-  const doc = webutils.document(out);
-  const rss = doc.getElementsByTagName('rss')[0];
-  const rssVersion =  rss.getAttribute('version');
-  if(rssVersion[0] == 2){
-    const items = rss.getElementsByTagName('item');
-    const item = items[0];
-    const title = item.getElementsByTagName('title')[0].textContent;
-    const description = item.getElementsByTagName('description')[0].textContent;
-    var link = null;
-    if(item.getElementsByTagName('link')[0]){
-      link = item.getElementsByTagName('link')[0].textContent;
-    }
-    var pubDate = null;
-    if(item.getElementsByTagName('pubDate')[0]){
-      pubDate = item.getElementsByTagName('pubDate')[0].textContent;
-    }
-    var guid = null;
-    if(item.getElementsByTagName('guid')[0]){
-      guid = item.getElementsByTagName('guid')[0].textContent;
-    }
-    var author = null;
-    if(item.getElementsByTagName('author')[0]){
-      author = item.getElementsByTagName('author')[0].textContent;
-    }
-    const msg = title + '\n' + pubDate + '\n' + guid
-    return msg;
-  }else{
-    return { error: 'Not supported RSS version! Report to developer!' };
-  }
+  const out = await webutils.rss(a);
+  return out;
 }
 c.test = async function (a) {
   // time equal hours + : + minutes
   const time = new Date().getHours() + ':' + new Date().getMinutes();
   return a + ' test\n' + time;
 }
-c.tgchannel = async function (id) {
-  const url = 'https://t.me/s/' + id;
-  const out = await webutils.get(url);
-  if(!out){
-    return;
-  }
-  const doc = webutils.document(out);
-  const msgs = doc.getElementsByClassName('tgme_widget_message_wrap');
-  const isMainPage = doc.getElementsByClassName('tl_main_head').length > 0;
-  if (isMainPage){
-    return { error: 'Channel not found.' };
-  }
-  const isWrongDimension = doc.getElementsByClassName('tgme_icon_user').length > 0;
-  if (isWrongDimension){
-    return { error: 'This is user.' };
-  }
-  const isAntiCopy = doc.getElementsByClassName('tgme_page_context_link_wrap').length > 0;
-  if (isAntiCopy){
-    return { error: 'Channels\'s owner enabled “Restrict saving content”.' };
-  }
-  const isPrivete = doc.getElementsByClassName('tgme_page_context_link_wrap').length > 0;
-  if (msgs.length == 0) {
-    return { error: 'Telegram channel not public!' };
-  }
-  const msg = msgs[msgs.length - 1];
-  const texts = msg.getElementsByClassName('tgme_widget_message_text');
-  var text = '';
-  if(texts.length > 0){
-    text = texts[0].textContent;
-  }
-  var img = '';
-  const imgs = msg.getElementsByClassName('tgme_widget_message_photo_wrap');
-  if(imgs.length > 0){
-    img = imgs[0].style.backgroundImage.split('url(')[1].split(')')[0];
-  }
-  var time = '';
-  const timeElement = msg.getElementsByTagName('time');
-  if(timeElement.length > 0){
-    time = timeElement[0].textContent;
-  }
-  var output = text;
-  if(img){
-    output += '\n' + img;
-  }
-  if(time){
-    output += '\n' + time;
-  }
-  return output;
+c.tgchannel = async function (a) {
+  const out = await webutils.tgchannel(a);
+  return out;
 }
 
 /*

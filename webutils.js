@@ -280,12 +280,16 @@ exports.lastVideoOnChannel = async function (channelId) {
     res = await axios.get('https://www.youtube.com/' + channelId + '/videos');
   } catch (e) {
     return;
-  } finally {
+  }
+  const obj = parseYt(res.data);
+  
+  var url;
+  try {
+    const videos = obj.contents.twoColumnBrowseResultsRenderer.tabs[1].tabRenderer.content.sectionListRenderer.contents[0].itemSectionRenderer.contents[0].gridRenderer.items;
+    url = 'https://youtu.be/' + videos[0].gridVideoRenderer.videoId;
+  } catch (error) {
 
   }
-  const obj = parseYt(res.data)
-  const videos = obj.contents.twoColumnBrowseResultsRenderer.tabs[1].tabRenderer.content.sectionListRenderer.contents[0].itemSectionRenderer.contents[0].gridRenderer.items;
-  const url = 'https://youtu.be/' + videos[0].gridVideoRenderer.videoId;
   return url;
 }
 exports.findVideoOnYoutube = async function (keywords, adds){
@@ -463,6 +467,67 @@ exports.getGuildIdByInvite = async function (url){
     return;
   }
 }
+
+exports.createSprunge = async function (text) {
+  const url = 'http://sprunge.us/';
+  try {
+    const res = await axios.post(url, 'sprunge=' + String(text));
+    return res.data;
+  } catch (e) {
+    return;
+  }
+}
+
+exports.tgchannel = async function (id) {
+  const url = 'https://t.me/s/' + id;
+  const out = await exports.get(url);
+  if (!out) {
+    return;
+  }
+  const doc = exports.document(out);
+  const msgs = doc.getElementsByClassName('tgme_widget_message_wrap');
+  const isMainPage = doc.getElementsByClassName('tl_main_head').length > 0;
+  if (isMainPage) {
+    return { error: 'Channel not found.' };
+  }
+  const isWrongDimension = doc.getElementsByClassName('tgme_icon_user').length > 0;
+  if (isWrongDimension) {
+    return { error: 'This is user.' };
+  }
+  const isAntiCopy = doc.getElementsByClassName('tgme_page_context_link_wrap').length > 0;
+  if (isAntiCopy) {
+    return { error: 'Channels\'s owner enabled “Restrict saving content”.' };
+  }
+  const isPrivete = doc.getElementsByClassName('tgme_page_context_link_wrap').length > 0;
+  if (msgs.length == 0) {
+    return { error: 'Telegram channel not public!' };
+  }
+  const msg = msgs[msgs.length - 1];
+  const texts = msg.getElementsByClassName('tgme_widget_message_text');
+  var text = '';
+  if (texts.length > 0) {
+    text = texts[0].textContent;
+  }
+  var img = '';
+  const imgs = msg.getElementsByClassName('tgme_widget_message_photo_wrap');
+  if (imgs.length > 0) {
+    img = imgs[0].style.backgroundImage.split('url(')[1].split(')')[0];
+  }
+  var time = '';
+  const timeElement = msg.getElementsByTagName('time');
+  if (timeElement.length > 0) {
+    time = timeElement[0].textContent;
+  }
+  var output = text;
+  if (img) {
+    output += '\n' + img;
+  }
+  if (time) {
+    output += '\n' + time;
+  }
+  return output;
+}
+
 exports.geysermcGet = async function () {
   try {
     const urlg = 'https://ci.opencollab.dev/job/GeyserMC/job/GeyserAndroid/job/master/lastSuccessfulBuild';
@@ -482,4 +547,53 @@ exports.geysermcGet = async function () {
 
   }
   return await promise;
+}
+
+exports.rss = async function (url) {
+  const out = await exports.get(a);
+  if (!out) {
+    return;
+  }
+  const doc = exports.document(out);
+  const rss = doc.getElementsByTagName('rss')[0];
+  const rssVersion = rss.getAttribute('version');
+  if (rssVersion[0] == 2) {
+    const items = rss.getElementsByTagName('item');
+    const item = items[0];
+    const title = item.getElementsByTagName('title')[0].textContent;
+    const description = item.getElementsByTagName('description')[0].textContent;
+    var link = null;
+    if (item.getElementsByTagName('link')[0]) {
+      link = item.getElementsByTagName('link')[0].textContent;
+    }
+    var pubDate = null;
+    if (item.getElementsByTagName('pubDate')[0]) {
+      pubDate = item.getElementsByTagName('pubDate')[0].textContent;
+    }
+    var guid = null;
+    if (item.getElementsByTagName('guid')[0]) {
+      guid = item.getElementsByTagName('guid')[0].textContent;
+    }
+    var author = null;
+    if (item.getElementsByTagName('author')[0]) {
+      author = item.getElementsByTagName('author')[0].textContent;
+    }
+    const msg = title + '\n' + pubDate + '\n' + guid
+    return msg;
+  } else {
+    return { error: 'Not supported RSS version! Report to developer!' };
+  }
+}
+
+function test (){
+  exports.lastVideoOnChannel('c/Krelez').then(function (url){
+    exports.createSprunge('Test: ' + url).then(console.log);
+  });
+  
+}
+
+test = null;
+
+if(typeof test === 'function'){
+  console.log(test());
 }
