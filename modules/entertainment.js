@@ -1,7 +1,13 @@
 const axios = require('axios');
 const jsdom = require('jsdom');
-const textdb = require('../textdb.js');
+var textdb;
 const debug = false;
+
+const animelist = [{ 'id': '893721', 'name': 'One Piece', 'url': 'https://ru.wikipedia.org/wiki/%D0%A1%D0%BF%D0%B8%D1%81%D0%BE%D0%BA_%D1%81%D0%B5%D1%80%D0%B8%D0%B9_%D0%B0%D0%BD%D0%B8%D0%BC%D0%B5_One_Piece' },
+{ 'id': '8737539', 'name': 'Boruto: Naruto Next Generations', 'url': 'https://ru.wikipedia.org/wiki/%D0%A1%D0%BF%D0%B8%D1%81%D0%BE%D0%BA_%D1%81%D0%B5%D1%80%D0%B8%D0%B9_%D0%B0%D0%BD%D0%B8%D0%BC%D0%B5_Boruto:_Naruto_Next_Generations' },
+{ 'id': '8768654', 'name': 'That Time I Got Reincarnated as a Slime', 'url': 'https://ru.wikipedia.org/wiki/%D0%A1%D0%BF%D0%B8%D1%81%D0%BE%D0%BA_%D1%81%D0%B5%D1%80%D0%B8%D0%B9_%D0%B0%D0%BD%D0%B8%D0%BC%D0%B5_%C2%AB%D0%9E_%D0%BC%D0%BE%D1%91%D0%BC_%D0%BF%D0%B5%D1%80%D0%B5%D1%80%D0%BE%D0%B6%D0%B4%D0%B5%D0%BD%D0%B8%D0%B8_%D0%B2_%D1%81%D0%BB%D0%B8%D0%B7%D1%8C%C2%BB' },
+{ 'id': '6535560', 'name': 'My Hero Academy', 'url': 'https://ru.wikipedia.org/wiki/%D0%A1%D0%BF%D0%B8%D1%81%D0%BE%D0%BA_%D1%81%D0%B5%D1%80%D0%B8%D0%B9_%D0%B0%D0%BD%D0%B8%D0%BC%D0%B5_%C2%AB%D0%9C%D0%BE%D1%8F_%D0%B3%D0%B5%D1%80%D0%BE%D0%B9%D1%81%D0%BA%D0%B0%D1%8F_%D0%B0%D0%BA%D0%B0%D0%B4%D0%B5%D0%BC%D0%B8%D1%8F%C2%BB' },
+{ 'id': '8266391', 'name': 'Pokemon', 'url': 'https://ru.wikipedia.org/wiki/%D0%A1%D0%BF%D0%B8%D1%81%D0%BE%D0%BA_%D1%81%D0%B5%D1%80%D0%B8%D0%B9_%D0%B0%D0%BD%D0%B8%D0%BC%D0%B5_%C2%AB%D0%9F%D0%BE%D0%BA%D0%B5%D0%BC%D0%BE%D0%BD%C2%BB_(%D1%81%D0%B5%D0%B7%D0%BE%D0%BD%D1%8B_17%E2%80%94%D0%BD%D0%B0%D1%81%D1%82%D0%BE%D1%8F%D1%89%D0%B5%D0%B5_%D0%B2%D1%80%D0%B5%D0%BC%D1%8F)' }];
 
 const monthsRUS = ['январ', 'феврал', 'март', 'апр', 'мая', 'июн', 'июл', 'август', 'сентябр', 'октябр', 'ноябр', 'декабр'];
 const monthsENG = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
@@ -221,4 +227,15 @@ if(debug){
       console.log(msgt);
     });
   }
+}
+
+exports.animeStatus = async function (id) {
+  const f = animelist[Number(id)];
+  const e = await entertainment.animeStatus(f.id);
+  const msgt = anime.msg(e, f.name, f.url);
+  return msgt;
+}
+
+exports.init = function (data) {
+  textdb = data.textdb;
 }

@@ -179,7 +179,7 @@ exports.sendNotify = function (msg, isDM) {
 
 exports.isOP = async function (guildId, userid){
     try {
-        const member = robot.guilds.cache.get(guildId).members.cache.get(userid);
+        const member = client.guilds.cache.get(guildId).members.cache.get(userid);
         return member.permissions.has(Permissions.FLAGS.ADMINISTRATOR);
     } catch (error) {
         return false;
@@ -188,7 +188,7 @@ exports.isOP = async function (guildId, userid){
 
 exports.log = function (msg) {
     var idLogChannel = internal.textdb.strings.idLogChannel;
-    if (useBeta) {
+    if (internal.useBeta) {
         idLogChannel = internal.textdb.strings.idLogChannelBeta;
     }
     try {

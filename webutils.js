@@ -1,6 +1,8 @@
 const axios = require('axios');
 const jsdom = require('jsdom');
 const random = require('./modules/random.js');
+const vk = require('./modules/vk.js');
+// const fourpda = require('./fourpda.js');
 const { JSDOM } = jsdom;
 const SpotifyWebApi = require('spotify-web-api-node');
 var spotifyApi = new SpotifyWebApi();
@@ -406,28 +408,63 @@ exports.searchImage = async function (text) {
   }
   return req.data.results;
 }
-exports.infoGP = async function (url) {
-  try { // Need reworking
-    const res = await axios.get(url)
-    var g = res.data;
-    const name = g.split('<title id="main-title">')[1].split('</title>')[0].split('– ')[1].replaceAll('&#39;', "'");
-    const v = g.split('<span class="htlgb"><div class="IQ1z0d"><span class="htlgb">');
-    var i = 0;
-    var n = [];
-    while(i != v.length){
-        const b = (v[i].split('</span></div></span></div><div class="hAyfc"><div class="BgcNfc">')[0]);
-        if(20 > b.length){
-          if(b.indexOf('.') != -1){
-            n.push(b);
-          }
-        }
-        i++;
+exports.newvideobyname = async function (a) {
+  const url = await webutils.findVideo(a);
+  if (url) {
+    return 'https://youtu.be/' + url;
+  }
+}
+exports.infoUpdateGP = async function (data) {
+  var url = 'https://play.google.com/store/apps/details?id=';
+  if(data.indexOf(url) > -1){
+    try {
+      const urlObj = new URL(data);
+      url += urlObj.searchParams.get('id');
+    } catch (error) {
+      return { error: 'Invalid URL' };
     }
-    return '**Вышла новая версия ' + name + ' для телефонов!**\nНовая версия: **' + n[1] + '** \nДата выхода обновления: **' + n[0] + '**';
-  } catch (e) {
+  }else{
+    url += data;
+  }
+  const res = await exports.get(url);
+  if(!res){
+    return;
+  }
+  const doc = exports.document(res);
+  // require('fs').writeFileSync('test.html', res);
+  var title = doc.getElementsByTagName('title')[0].textContent.split(' - ');
+  if(title.length == 1){
+    return { error: 'Page not found' };
+  }else{
+    title = title[0];
+  }
+  try {
+    var script = exports.findScript(res, "AF_initDataCallback({key: 'ds:4'");
+    var array = script.split('(');
 
-  } finally {
+    array.shift();
+    script = array.join('(');
 
+    array = script.split(');');
+    array.pop();
+    script = array.join(');');
+
+    array = script.split(',[[["');
+    script = array[array.length - 1];
+    script = script.split('"]]],')[0];
+    const version = script.split('"]]')[0];
+    array = script.split('"');
+    const date = array[array.length - 1];
+    return title + ' (Android)!**\n--> **' + version + '** \n📅: **' + date + '**';
+  } catch (error) {
+    
+  }
+}
+exports.vkGroupLastPhoto = async function (id) {
+  const urlimg = await vk.getGroup(id, 1);
+  if (urlimg) {
+    const idphoto = new URL(urlimg).pathname;
+    return urlimg;
   }
 }
 exports.howManySubs = async function (url) {
@@ -550,7 +587,7 @@ exports.geysermcGet = async function () {
 }
 
 exports.rss = async function (url) {
-  const out = await exports.get(a);
+  const out = await exports.get(url);
   if (!out) {
     return;
   }
@@ -596,4 +633,97 @@ test = null;
 
 if(typeof test === 'function'){
   console.log(test());
+}
+
+/*
+  Need to rework
+  const wNews = robot.channels.cache.get(worldNews);
+  function fpdasend(e) {
+    var simg = e.mainimage;
+    if(e.images.length > 1){
+      simg = e.images[1];
+    }
+    const embed = new Discord.MessageEmbed()
+      .setColor('#0099ff')
+      .setTitle(e.title)
+      .setURL(e.url)
+      .setAuthor('4PDA', 'https://i.imgur.com/BdRLB5Y.png', fourpda.domain)
+      .setDescription(e.text.substring(0, 2047))
+      .setThumbnail(e.mainimage)
+      .setImage(simg)
+      .setTimestamp();
+    wNews.send(embed);
+    var txt = e.title;
+    txt += '\n';
+    txt += e.text;
+    txt += '\n';
+    txt += e.mainimage;
+    txt += '\n';
+    txt += e.url;
+    txt += '<>TELEGRAM<>';
+    send(wNews, txt);
+  }
+  fourpda.lastArticle().then(function (data) {
+    if(data){
+      onChange("fpda", data.url).then(function (e) {
+        if(e == true){
+          fpdasend(data);
+        }
+      });
+    }
+  })
+  
+  // GeyserMC Android
+  webutils.geysermcGet().then(function (e) {
+    const geyserInfo = e;
+    if(geyserInfo){
+      onChange("geysermcandroid", geyserInfo[3]).then(function (e) {
+        if(e == true){
+          const geyserUpdateChannel = robot.channels.cache.get('845308537596149790');
+          geyserUpdateChannel.send('<@&815223159002890280>');
+          const embed = new Discord.MessageEmbed()
+             .setColor('#34eb9e')
+             .setTitle('GeyserMC Android update')
+             .setDescription(geyserInfo[0]+'\n(Size file) Размер файла: **' + geyserInfo[2] + '**\n(Build version) Версия сборки: **' + geyserInfo[3] + '**');
+          geyserUpdateChannel.send(embed);
+        }
+      });
+    }
+  });
+*/
+
+// Need reworking
+function codesWiki(n) {
+  return 'https://' + n + '.fandom.com/api.php?action=query&prop=revisions&titles=Codes&rvprop=content&format=json'
+}
+exports.spincodes = async function () {
+  const res = await webutils.get(codesWiki('shindo-life-rell'));
+  if (!res) {
+    return;
+  }
+  const g = res.query.pages[431].revisions[0]['*'].split('|-|Inactive Codes:=')[0].split('|Code')[1].replaceAll('}', '==========').replaceAll('|', '').replaceAll('\'', '*').replace('!', '').replaceAll('-', '==========').replace('Reward', '').replaceAll('******', '');
+  const v = g.split('\n');
+  var b = [];
+  for (var i = 0; i < v.length; i++) {
+    if (v[i].length > 1) {
+      b.push(v[i].replace(' Spins', '🌀').replace(' and ', '+').replace(' RELLCoins', '🪙').replace('==========', ''));
+    }
+  }
+  return b.join('\n');
+}
+exports.demonfallcodes = async function () {
+  const res = await webutils.get(codesWiki('demon-fall'));
+  if (!res) {
+    return;
+  }
+  var g = res.query.pages[364].revisions[0]['*'].split('<br />')[0].split('|-');
+  g.shift();
+  var t = [];
+  for (var i = 0; i < g.length; i++) {
+    const e = g[i].replaceAll('\n', '').replaceAll('|', '').replaceAll('[[', ' ').replaceAll(']]', ' ')
+    if (e.length > 1) {
+      t.push(e.replace('Potion', '🧪'));
+    }
+  }
+  return t.join('\n\n');
 }

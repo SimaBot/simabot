@@ -1,7 +1,7 @@
 const wordutils = require('./wordutils.js');
 const webutils = require('./webutils.js');
 const pjf = require('./package.json');
-const translate = require('./translate.js');
+const translate = require('./modules/translate.js');
 const { database } = require('firebase-admin');
 
 const errorMsg = '\nError! Contact with developer! https://simabot.github.io/';

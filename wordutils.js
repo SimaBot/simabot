@@ -1,4 +1,3 @@
-const { log } = require('npmlog');
 const random = require('./modules/random.js');
 
 var bufferTextArray = {};

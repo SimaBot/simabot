@@ -1,0 +1,67 @@
+[
+    {
+        "id": "url",
+        "description": "Get text from URL (req. URL)"
+    },
+    {
+        "id": "simabot",
+        "description": "Get output from SimaBot (req. text)"
+    },
+    {
+        "id": "memes",
+        "description": "Get last post in VK group (req. id group)"
+    },
+    {
+        "id": "videos",
+        "description": "Get last video on YouTube channel (req. id channel)",
+        "function": "webutil.lastVideoOnChannel"
+    },
+    {
+        "id": "androidupdates",
+        "description": "Get version of Android app on GPlay (req. app id)",
+        "function": "webutils.infoUpdateGP",
+        "example": [
+            "https://play.google.com/store/apps/details?id=com.mojang.minecraftpe",
+            "com.and.games505.TerrariaPaid"
+        ]
+    },
+    {
+        "id": "spincodes",
+        "description": "Get codes for Shindo (Roblox Game)",
+        "function": "webutils.spinCodes"
+    },
+    {
+        "id": "demonfallcodes",
+        "description": "Get codes for Demon Fall (Roblox Game)"
+    },
+    {
+        "id": "rblxlua",
+        "description": "Get last scripts for Roblox game (req. game name)"
+    },
+    {
+        "id": "anime",
+        "description": "Get last episode for anime (req. index from Animelist [0-5])",
+        "function": "entertainment.animeStatus"
+    },
+    {
+        "id": "newvideobyname",
+        "description": "Get video on YouTube (req. name)",
+        "function": "webutils.newvideobyname"
+    },
+    {
+        "id": "rss",
+        "description": "RSS feed (req. url)",
+        "example": "https://store.steampowered.com/feeds/news/app/739630/",
+        "function": "webutils.rss"
+    },
+    {
+        "id": "tgchannel",
+        "description": "Telegram channel (req. channel id)",
+        "example": "wallpaperselection",
+        "function": "webutils.tgchannel"
+    },
+    {
+        "id": "test",
+        "description": "Output time"
+    }
+]

@@ -35,7 +35,7 @@ if (msg.author.id != robot.user.id) {
           }
         }
         const originalmsg = txtmsg;
-        var txtmsg2 = googleT.toRu(txtmsg);
+        var txtmsg2 = modules.translate.toRu(txtmsg);
         if (txtmsg2 == '') {
           txtmsg = txtmsg;
         } else {
@@ -104,7 +104,7 @@ if (msg.author.id != robot.user.id) {
           if (webutils.urlsArray(bot)) {
             db.addCoin(4, userid, msg.guildId);
           }
-          const enBot = await googleT.toEn(e);
+          const enBot = await modules.translate.toEn(e);
           msg.channel.send((bot + '\n:flag_us: ' + enBot).substring(0, 1999));
           db.addCoin(4, userid, msg.guildId);
         }
@@ -117,7 +117,7 @@ if (msg.author.id != robot.user.id) {
             e = pingsender + removeRole(role, msg);
           }
         }
-        googleT.impl(robot, msg, speakChannel, newsChannel, translationChannel, pingsender, newsChannelEng, jojoChannelRUS, jojoChannelENG, send);
+        modules.translate.impl(robot, msg, speakChannel, newsChannel, translationChannel, pingsender, newsChannelEng, jojoChannelRUS, jojoChannelENG, send);
       }
           }catch (e) {
       log(e, 'Error');

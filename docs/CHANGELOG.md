@@ -20,11 +20,18 @@
 - Write news channels about simabot updates in general.
 - Translated channels.
 - Check edited messages.
-- Detect explitit nicknames.
+- Detect explicit nicknames.
 - Add TODO in SimaBot.
 - Add Instagram/Facebook browser/downloader.
 
 # Changes
+## 3.3.0:
+- Fix (a is not defined at Object.exports.rss - webutils.js:553:33).
+- Removed channels.js.
+- Added resources/channels.json.
+- textdb.js now json.
+- Fixed bug: logs don't show in discord.
+- NewNotifer now Notifer and it can be disabled.
 ## 3.2.0:
 - Update packages to latest version.
 - Not important parts moved to modules folder. (which can be disabled)
@@ -69,3 +76,8 @@
 - Tool to convert the secrets to environment variables.
 ## 2.9.9:
 - Initial open-source release.
+
+# Unkown
+    //  (Sad to hear your leave) ${member}!
+    // Welcome msg // TODO:
+  // "{"q": ["test"], "a": "Test. Oh test, yes. I am SimaBot! By the way I am a bot. And thanks for the test. Oh test, yes, I like the test. When it just works, it\"s great. And I think I never fail in test. Good test easy, and which make smile. This test never gonna make your cry by the way. Writed by Test Test. Do you want be tester? Just be tester! Test make your life easier. Because it do not requires other test. Tester important in our life. Tester can find problem and report them to other. And it make them important in our life! Beta version not great, they requires test for final releases so make sure that you checked everything. One trouble can make a big problem. Make sure that you have enough testers! (Writen on back side of SimaBot) "}",

@@ -37,6 +37,15 @@ exports.toRu = async function (text) {
   }
 }
 
+// Text, Lang(from), Lang2(to)
+exports.to = async function (text, lang, lang2) {
+  if(!lang2){
+    lang2 = lang;
+    lang = 'auto';
+  }
+  // TODO
+}
+
 exports.fixMentions = function (e) {
   return e.replaceAll('<@ ', '<@').replaceAll('<# ', '<#').replaceAll('<@! ', '<@!');
 }

@@ -1,10 +1,8 @@
-const googleT = require('./translate.js');
 const webutils = require('./webutils.js');
 const db = require('./db.js');
 const simabot = require('./simabot.js');
-const textdb = require('./textdb.js');
+const textdb = require('./resources/textdb.json');
 const wordutils = require('./wordutils.js');
-const nnotifer = require('./newnotifer.js');
 const aoid = require('./modules/aoid.js');
 const web = require('./modules/web.js');
 const fs = require('fs');
@@ -15,7 +13,10 @@ var useBeta = false;
 if(process.env.BETA == "1"){
   useBeta = true;
 }
-
+var branchName = 'stable';
+if (useBeta) {
+  branchName = 'beta';
+}
 var secret = null;
 if(process.env.SECRET){
   try {
@@ -65,14 +66,20 @@ async function envGenerate(){
 }
 
 envGenerate();
-db.init(secret);
-
-if(typeof github == 'object'){
-  github.setSecret(secret);
-}
 
 var services = {};
 var modules = {};
+if (typeof modules.github == 'object'){
+  modules.github.setSecret(secret);
+}
+var config = {
+  notiferinterval: 10000,
+  notifercacheinterval: 10000,
+  dbcacheinterval: 1000
+};
+db.setBranchAndTimeout(branchName, config.dbcacheinterval);
+db.setDebug(useBeta);
+db.init(secret);
 var internal = {
   getStatus: getStatus,
   log: log,
@@ -81,18 +88,21 @@ var internal = {
   wordutils: wordutils,
   webutils: webutils,
   modules: modules,
-  secret: secret
+  secret: secret,
+  config: config,
+  services: services,
+  useBeta: useBeta
 };
 
 var enabledServices = ['discord', 'telegram'];
-var enabledModules = ['random', 'aoid', 'web', 'music-discord']; //'github'
+var enabledModules = ['translate', 'random', 'aoid', 'web', 'music-discord', 'entertainment', 'notifer']; //'github'
 var service = {
-  for: function(name, ...args){
+  for: function(name, arg){
     for (let i = 0; i < enabledServices.length; i++) {
       const serviceName = enabledServices[i];
-      if(service[serviceName]){
-        if(service[serviceName][name]){
-          service[serviceName][name](...args);
+      if(services[serviceName]){
+        if(services[serviceName][name]){
+          services[serviceName][name](arg);
         }
       }
     }
@@ -131,13 +141,6 @@ function initServices(){
     }
   }
 }
-
-var branchName = 'stable';
-if(useBeta){
-  branchName = 'beta';
-}
-db.setBranch(branchName);
-db.setDebug(useBeta);
 
 function log(e, type) {
   var msg = '';
@@ -181,43 +184,6 @@ process.on('uncaughtException', function (error) {
   log(error.stack, textdb.strings.globalError);
 });
 
-async function notifer_send(){
-  var msgs = await nnotifer.checkUpdates();
-  for (let i = 0; i < msgs.length; i++) {
-    const msg = msgs[i];
-    const serviceName = msg.guildid.split('.')[0];
-    const isDM = serviceName.indexOf('dm') > -1;
-    // TODO: custom language
-    var success = false;
-    try{
-      for (let i = 0; i < enabledServices.length; i++) {
-        const name = enabledServices[i];
-        if (serviceName.startsWith(name)) {
-          if(services[name]){
-            if(services[name].sendNotify){
-              const output = services[name].sendNotify(msg, isDM);
-              if(!success){
-                if(output){
-                  success = true;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    catch(err){
-      if(useBeta){
-        console.log(err);
-      }
-    }
-    if (success){
-      msgs.slice(i, 1);
-    }
-    // remove msg
-  }
-}
-
 const SimaBot = async function (msg){
   var serviceName = 'discord';
   var userid, nickname, guildId = 0, channelId = msg.channelId, isDM = false;
@@ -250,17 +216,24 @@ const SimaBot = async function (msg){
   }
   guildId = serviceName + '.' + guildId;
   const text = msg.text || msg.content;
-  const translatedText = await googleT.toRu(text);
+  var translatedText = text;
+  if (modules.translate){
+    translatedText = await modules.translate.toRu(text);
+  }
   
   if (text.indexOf(textdb.strings.domain + '/') > -1){
     if(!isOP){
       return textdb.strings.noOP;
     }
-    const out = await nnotifer.addNotify(text, guildId, channelId);
-    if(out){
-      return '⚠️: ' + out + '\n🔗: ' + textdb.strings.websiteURL;
+    if (modules.notifer){
+      const out = await modules.notifer.addNotify(text, guildId, channelId);
+      if(out){
+        return '⚠️: ' + out + '\n🔗: ' + textdb.strings.websiteURL;
+      }else{
+        return '✅';
+      }
     }else{
-      return '✅';
+      return textdb.strings.notiferNotFound;
     }
   }
   const mainDB = await db.getGuildDB(0);
@@ -329,11 +302,13 @@ const SimaBot = async function (msg){
       return textout;
     }
     //TODO: Custom language, single language mode, specific language to user profile.
-    var out2 = await googleT.toEn(out.out);
-    if (out2) {
-      const fixed = wordutils.fixText(out2);
-      if (fixed != textout) {
-        textout += '\n🇺🇸: ' + fixed;
+    if(modules.translate){
+      var out2 = await modules.translate.toEn(out.out);
+      if (out2) {
+        const fixed = wordutils.fixText(out2);
+        if (fixed != textout) {
+          textout += '\n🇺🇸: ' + fixed;
+        }
       }
     }
     return textout;
@@ -342,13 +317,8 @@ const SimaBot = async function (msg){
 internal.simabot = SimaBot;
 
 function init() {
-  nnotifer.init(db);
   initModules();
   initServices();
-  notifer_send();
-  setInterval(async function () {
-    notifer_send();
-  }, 1000 * 10);
 }
 
 init();

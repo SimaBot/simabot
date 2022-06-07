@@ -1,5 +1,5 @@
 const axios = require('axios');
-const textdb = require('../textdb.js');
+var textdb;
 var secret = null;
 async function indexOfIssueGH(title) {
     const res = await axios.get(textdb.strings.issueGH);
@@ -65,4 +65,7 @@ setInterval(async function () {
 exports.newIssue = newIssue;
 exports.setSecret = function (s) {
     secret = s;
+}
+exports.init = function (data) {
+    textdb = data.textdb;
 }

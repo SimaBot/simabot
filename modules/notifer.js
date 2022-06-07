@@ -1,7 +1,48 @@
-const channels = require('./channels.js');
-const wordutils = require('./wordutils.js');
-const textdb = require('./textdb.js');
+var internal = null;
+var db, textdb, wordutils, services;
+const channels = require('../resources/channels.json');
 const crypto = require('crypto');
+const simabot = require('../simabot.js');
+const superweb = require('../superweb.js');
+
+var c = {};
+
+
+c.rblxlua = async function (a) {
+    const keyword = a + ' cheat script';
+    if (internal.modules.roblox){
+        const data = await internal.modules.roblox.cheat(keyword);
+        if (data) {
+            return data[0].join('\n');
+        }
+    }
+}
+c.simabot = async function (text, botdb) {
+    var translatedText;
+    if(internal.modules.translate){
+        translatedText = await internal.modules.translate.toRu(text);
+    }
+    const config = {
+        msg: translatedText || text,
+        userid: '0',
+        nickname: '0',
+        isDM: true,
+        originalansw: text,
+        channelid: '0',
+        botdb: botdb,
+        isOP: false
+    };
+    out = await simabot.bot(config);
+    return wordutils.fixText(out.out);
+}
+c.url = async function (a) {
+    const out = await superweb.url(text, 'any');
+    return out;
+}
+c.test = async function (a) {
+    const time = new Date().getHours() + ':' + new Date().getMinutes();
+    return a + ' test\n' + time;
+}
 
 var cache = {};
 var db = null;
@@ -18,11 +59,6 @@ function checksum(str, algorithm, encoding) {
         .update(str, 'utf8')
         .digest(encoding || 'hex')
 }
-
-// clear cache 10 seconds
-setInterval(function () {
-    cache = {};
-}, 10000);
 
 exports.parser = function (url) {
     const simabot = typeof channels !== 'undefined';
@@ -60,7 +96,7 @@ exports.parser = function (url) {
     }
     if (simabot) {
         // Check if id not out of range
-        const arr = Object.keys(channels.channels);
+        const arr = Object.keys(channels);
         if ((out.id + 1) > arr.length) {
             return { error: '14' };
         }
@@ -89,8 +125,32 @@ function createError (code, url, msg){
     return { error:  error };
 }
 
+function findFunction(data, name){
+    if(data){
+        const arr = data.split('.');
+        const n = arr[0];
+        const f = arr[1];
+        if(internal[n]){
+            if (internal[n][f]){
+                return internal[n][f];
+            }
+        }
+        if(internal.modules[n]){
+            if (internal.modules[n][f]){
+                return internal.modules[n][f];
+            }
+        }
+    }
+    if(!data){
+        if(c[name]){
+            return c[name];
+        }
+    }
+}
 async function get(id, data, url){
-    const name = channels.array[id];
+    const channel = channels[id];
+    const name = channel.id;
+    const func = channel.function;
     var pt = null;
     var botName = 'simabot';
     if(typeof textdb !== 'undefined'){
@@ -100,7 +160,11 @@ async function get(id, data, url){
         pt = db.get('0', 'botdb');
     }
     try{
-        const out = await channels.channels[name](data, pt);
+        const foundFunction = findFunction(func, name);
+        if (!foundFunction){
+            return createError(3, url);
+        }
+        const out = await foundFunction(data, pt);
         if(!out){
             return createError(3, url);
         }
@@ -287,6 +351,67 @@ exports.addNotify = async function (url, guildId, channelId){
     list.push(JSON.stringify({ url: url, channel: channelId, guildid: guildId }));
     const save = await db.set(guildId, 'notifer', list);
 }
-exports.init = function (dbaccess){
-    db = dbaccess;
+async function notifer_send() {
+    var msgs = await exports.checkUpdates();
+    for (let i = 0; i < msgs.length; i++) {
+        const msg = msgs[i];
+        const serviceName = msg.guildid.split('.')[0];
+        const isDM = serviceName.indexOf('dm') > -1;
+        const enabledServices = Object.keys(services);
+        // TODO: custom language
+        var success = false;
+        try {
+            for (let i = 0; i < enabledServices.length; i++) {
+                const name = enabledServices[i];
+                if (serviceName.startsWith(name)) {
+                    if (services[name]) {
+                        if (services[name].sendNotify) {
+                            const output = services[name].sendNotify(msg, isDM);
+                            if (!success) {
+                                if (output) {
+                                    success = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        catch (err) {
+            log(err);
+        }
+        if (success) {
+            msgs.slice(i, 1);
+        }
+        // remove msg
+    }
+}
+exports.init = function (data){
+    internal = data;
+    db = internal.db;
+    textdb = internal.textdb;
+    wordutils = internal.wordutils;
+    webutils = internal.webutils;
+    services = internal.services;
+    var interval = internal.config;
+    if (interval.notiferinterval){
+        interval = Number(interval.notiferinterval);
+    }else{
+        interval = 1000 * 10; // every 10 seconds
+    }
+    var cinteval = internal.config;
+    if (cinteval.notifercacheinterval){
+        cinteval = Number(cinteval.notifercacheinterval);
+    }else{
+        cinteval = 1000 * 30;
+    }
+    // clear cache every n seconds
+    setInterval(function () {
+        cache = {};
+    }, cinteval);
+    // check updates every n seconds
+    notifer_send();
+    setInterval(async function () {
+        notifer_send();
+    }, interval);
 }

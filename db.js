@@ -1,6 +1,6 @@
 var admin = require("firebase-admin");
 const simabot = require("./simabot.js");
-const textdb = require("./textdb.js");
+const textdb = require("./resources/textdb.json");
 const wordutils = require("./wordutils.js");
 
 var prefix = 'none.';
@@ -20,11 +20,11 @@ exports.setDebug = function(isDebug) {
   }
 }
 
-exports.setBranch = function(name) {
+exports.setBranchAndTimeout = function(name, interval) {
   branch = name;
   var cacheSetTimeout = 1000 * 5;
-  if(name === 'stable'){
-    cacheSetTimeout = 1000 * 30;
+  if (interval){
+    cacheSetTimeout = Number(interval);
   }
   setInterval(cacheWorker, cacheSetTimeout);
 }
