@@ -1,43 +1,15 @@
-process.env.NTBA_FIX_319 = 1;
-const TelegramBot = require('node-telegram-bot-api');
-// const Discordself = require("discord-user-bots");
-const Discord = require('discord.js');
-const { Permissions } = require('discord.js');
 const googleT = require('./translate.js');
-const random = require('./random.js');
 const webutils = require('./webutils.js');
 const db = require('./db.js');
 const simabot = require('./simabot.js');
 const textdb = require('./textdb.js');
 const wordutils = require('./wordutils.js');
-const music = require('./music.js');
 const nnotifer = require('./newnotifer.js');
 const aoid = require('./modules/aoid.js');
-
-// const clientself = new Discordself.Client(secret.selfdiscord);
-const robot = new Discord.Client({partials: ["CHANNEL"],
-intents: [
-  'GUILDS',
-  'GUILD_VOICE_STATES',
-  'GUILD_MESSAGES',
-  'DIRECT_MESSAGES'
-],
-});
+const web = require('./modules/web.js');
 const fs = require('fs');
 const pjf = require('./package.json');
-const he = require('he');
 const axios = require('axios');
-const express = require("express");
-const app = express();
-
-app.listen(process.env.PORT || 3000, () => {
-
-});
-
-app.get("/", (req, res) => {
-  res.send(textdb.strings.helloWorld);
-});
-
 var useBeta = false;
 
 if(process.env.BETA == "1"){
@@ -93,12 +65,72 @@ async function envGenerate(){
 }
 
 envGenerate();
-aoid.aoid(secret.aoid);
 db.init(secret);
 
-const allowCrash = false;
-const enableConsole = useBeta;
-const selfBot = false;
+if(typeof github == 'object'){
+  github.setSecret(secret);
+}
+
+var services = {};
+var modules = {};
+var internal = {
+  getStatus: getStatus,
+  log: log,
+  textdb: textdb,
+  db: db,
+  wordutils: wordutils,
+  webutils: webutils,
+  modules: modules,
+  secret: secret
+};
+
+var enabledServices = ['discord', 'telegram'];
+var enabledModules = ['random', 'aoid', 'web', 'music-discord']; //'github'
+var service = {
+  for: function(name, ...args){
+    for (let i = 0; i < enabledServices.length; i++) {
+      const serviceName = enabledServices[i];
+      if(service[serviceName]){
+        if(service[serviceName][name]){
+          service[serviceName][name](...args);
+        }
+      }
+    }
+  },
+  log: function(msg){
+    service.for('log', msg);
+  }
+};
+
+function initModules() {
+  for (let i = 0; i < enabledModules.length; i++) {
+    const moduleName = enabledModules[i];
+    try {
+      modules[moduleName] = require('./modules/' + moduleName + '.js');
+      if (modules[moduleName].init){
+        modules[moduleName].init(internal);
+      }
+    }
+    catch (error) {
+      modules[moduleName] = null;
+      log(textdb.strings.moduleError + ': ' + moduleName, error);
+    }
+  }
+}
+function initServices(){
+  const secretBranch = secret[branchName];
+  for (let i = 0; i < enabledServices.length; i++) {
+    const name = enabledServices[i];
+    const secretService = secretBranch[name];
+    try {
+      services[name] = require('./services/' + name + '.js');
+      services[name].init(secretService, internal);
+    } catch (error) {
+      services[name] = null;
+      log(textdb.strings.serviceInitError + ': ' + name, error);
+    }
+  }
+}
 
 var branchName = 'stable';
 if(useBeta){
@@ -107,161 +139,24 @@ if(useBeta){
 db.setBranch(branchName);
 db.setDebug(useBeta);
 
-const tgEnabled = true;
-
-var users = [];
-
-var tgbot;
-
-async function indexOfIssueGH(title) {
-  const res = await axios.get(textdb.strings.issueGH);
-  const issues = res.data;
-  const t = title.substring(0, 50);
-  for (var i = 0; i < issues.length; i++) {
-    console.log(issues[i].title, t);
-    if (issues[i].title.indexOf(t) > -1) {
-      return true;
-    }
-  }
-  return false;
-}
-async function createIssueGH(title, body) {
-  if (!secret.githubtoken){
-    return;
-  }
-  const isRepeat = await indexOfIssueGH(title);
-  if(isRepeat){
-    return;
-  }
-  const issue = {
-    "title": title,
-    "body": body,
-    "labels": [
-      "bug",
-      "simabot"
-    ],
-    "assignees": [
-      "goosesima"
-    ]
-  };
-  const headers = {
-    'Authorization': 'token ' + secret.githubtoken,
-    'Content-Type': 'application/json',
-    'Accept': 'application/vnd.github.v3+json'
-  };
-  try {
-    const res = await axios.post(textdb.strings.issueGH, issue, { headers: headers });
-  } catch (error) {
-    console.log('While creating issue: ');
-    console.log(error.response);
-  }
-}
-
-var issues = [];
-
-function newIssue(title, body) {
-  issues.push([title, body]);
-}
-
-setInterval(async function() {
-  for (let i = 0; i < issues.length; i++) {
-    const e = issues[i];
-    await createIssueGH(e[0], e[1]);
-  }
-  issues = [];
-}, 1000);
-
 function log(e, type) {
   var msg = '';
-  var idLogChannel = textdb.strings.idLogChannel;
-  if(useBeta){
-    idLogChannel = textdb.strings.idLogChannelBeta;
-  }
   if(!type){
     type = textdb.strings.error;
   }
   msg = type + ":\n```javascript\n" + String(e).substring(0, 1900) + '```';
   msg += '> (SimaBot⚡) Bot name: ' + textdb.strings.botName + ' v' + String(pjf.version);
   msg += '\n**' + textdb.strings.running + ' ' + branchName + '**';
-  newIssue(String(e).substring(0, 50) + ' ' + textdb.strings.botName + ' ' + branchName + ' v' + String(pjf.version), msg.substring(0, 5000));
-	if(enableConsole){
+  if (typeof github == 'object'){
+    github.newIssue(String(e).substring(0, 50) + ' ' + textdb.strings.botName + ' ' + branchName + ' v' + String(pjf.version), msg.substring(0, 5000));
+  }
+  if (useBeta){
 		console.log([msg]);
 	}
-	try {
-		var logCh = robot.channels.cache.get(idLogChannel);
-		logCh.send(msg);
-	} catch (e) {
-		console.log(e);
-	} finally {
-
-	}
-
-}
-
-
-function managerRoles(name, msg, give) {
-  const role = msg.guild.roles.cache.find(role => role.name === name);
-  const id = msg.author.id;
-  const member = msg.guild.members.cache.get(id);
-  if (!role){
-    return;
-  }
-  if(member.roles.cache.has(role.id)) {
-    if(give){
-      return ', ' + textdb.strings.alreadyExistsRole + ': **' + name + '**';
-    }else{
-      member.roles.remove(role).catch(console.error);
-      return ', -' + textdb.strings.role + ': **' + name + '**';
-    }
-  }else{
-    if(give){
-      member.roles.add(role)
-      return ', +' + textdb.strings.role + ': **' + name + '**';
-    }else{
-      return ', ' + textdb.strings.alreadyNotExistsRole + ': **' + name + '**';
-    }
-  }
+  service.log(msg);
 }
 
 process.on('warning', e => console.warn(e.stack));
-
-function giveRole(name, msg) {
-  return managerRoles(name, msg, true);
-}
-function removeRole(name, msg) {
-  return managerRoles(name, msg, false);
-}
-async function banHandle() { //TODO: No ban
-  const z = await db.collection('users').where('banned', '==', true).get();
-  z.forEach(doc => {
-    var data = doc.data();
-    if(data.bantimer != 0){
-      data.bantimer--;
-      db.collection("users").doc(doc.id).set(data);
-    }
-    if(data.bantimer == 0){
-      data.banned = false;
-      db.collection("users").doc(doc.id).set(data);
-      try {
-        robot.users.fetch(userid).then((user) => {
-            const server = robot.guilds.cache.get('serverID'); // TODO
-            const target = server.members.cache.get(userid);
-            target.ban({ reason: textdb.strings.breakRules }); // TODO: Replace with server specific ban message + reason
-            createUser(userid);
-            user.send(textdb.unbanMsg,{
-              files: [textdb.unbanImg]
-            });
-        });
-      } catch {
-      }
-    }
-  });
-}
-
-var discordtoken = secret[branchName].discord;
-let discordpassword = secret.password;
-
-var uptime = 0;
 
 function secToTime(seconds) {
   const s = Number(seconds);
@@ -275,83 +170,16 @@ function secToTime(seconds) {
     return timeString;
   }
 }
-
-function changeStatus(){
-	const time = (new Date()).toUTCString();
-  const msg = 'v' + pjf.version + ' ⏰ ' + time + ' 🔌 ' + secToTime(uptime);
-  robot.user.setPresence({ activities: [{ name: msg }], status: 'idle' });
-	uptime++;
+const uptime = Math.round((new Date()).getTime() / 1000);
+function getStatus() {
+  const currentTime = Math.round((new Date()).getTime() / 1000);
+  const msg = 'v' + pjf.version + ' ⏰ ' + (new Date()).toUTCString() + ' 🔌 ' + secToTime(currentTime - uptime);
+  return msg;
 }
 
-robot.on('guildMemberAdd', async member => {
-  const cfg = await db.getCfgServer('discord.' + member.guild.id);
-  if(!welcomeId){
-    return;
-  }
-  try {
-    const welcomeChannel = robot.channels.cache.get(cfg.welcomeId);
-    welcomeChanne.send(wordutils.replaceAll(cfg.welcomeMsg, member));
-    for (let i = 0; i < cfg.welcomeDm.length; i++) {
-      const text = cfg.welcomeDm[i];
-      const urls = webutuils.urlsArray(text);
-      if(urls) {
-        member.send({
-          files: urls
-        });
-      }else{
-        member.send(text);
-      }
-    }
-  } catch (e) {
-    
-  }
+process.on('uncaughtException', function (error) {
+  log(error.stack, textdb.strings.globalError);
 });
-
-if(!allowCrash){
-  robot.on('error', error => {
-    log(error, textdb.strings.robotError);
-  });
-}
-
-robot.on("guildMemberRemove", async member => {
-  const cfg = await db.getCfgServer('discord.' + member.guild.id);
-  if (cfg.welcomeId){
-    try {
-      const msg = robot.channels.cache.get(cfg.welcomeId);
-      msg.send(wordutils.replaceAll(cfg.leaveMsg, member));
-    }
-    catch {
-
-    }
-  }
-});
-
-function robotready(e) {
-  const discordInviteURL = 'https://discord.com/api/oauth2/authorize?client_id=' + e.user.id + '&permissions=8&scope=bot';
-  console.log(textdb.strings.discordReady + '\n' + discordInviteURL);
-  notifer_send();
-  music.init(robot);
-  var oldInfoMusic = null;
-  setInterval(async function(){
-    notifer_send();
-  }, 1000 * 10);
-  setInterval(async function() {
-    if (music.getInstances().length > 0) {
-      const info = music.getInstances()[0].info;
-      if (oldInfoMusic != info) {
-        await db.setRadio(info);
-      }
-      oldInfoMusic = info;
-    }
-  }, 1000);
-  if (!allowCrash) {
-    process.on('uncaughtException', function (error) {
-      log(error.stack, textdb.strings.globalError);
-    });
-  }
-  changeStatus();
-  setInterval(changeStatus, 1000);
-}
 
 async function notifer_send(){
   var msgs = await nnotifer.checkUpdates();
@@ -360,18 +188,21 @@ async function notifer_send(){
     const serviceName = msg.guildid.split('.')[0];
     const isDM = serviceName.indexOf('dm') > -1;
     // TODO: custom language
+    var success = false;
     try{
-      if(serviceName.startsWith('telegram')){
-        tgbot.sendMessage(msg.channel, msg.msg);
-      }
-      if(serviceName.startsWith('discord')){
-        if(isDM){
-          robot.users.fetch(msg.guildid.split('.')[1]).then((user) => {
-            user.send(msg.msg);
-          });
-        }else{
-          const channel = robot.channels.cache.get(msg.channel);
-          channel.send(msg.msg);
+      for (let i = 0; i < enabledServices.length; i++) {
+        const name = enabledServices[i];
+        if (serviceName.startsWith(name)) {
+          if(services[name]){
+            if(services[name].sendNotify){
+              const output = services[name].sendNotify(msg, isDM);
+              if(!success){
+                if(output){
+                  success = true;
+                }
+              }
+            }
+          }
         }
       }
     }
@@ -380,57 +211,17 @@ async function notifer_send(){
         console.log(err);
       }
     }
-    // remove msg
-    msgs.slice(i, 1);
-  }
-}
-
-const virtdb = {
-  set: async function (serverId, namedb, array, cloud) {
-    const out = await db.set(serverId, namedb, array, cloud);
-    return out;
-  },
-  get: async function (serverId, namedb) {
-    const out = await db.get(serverId, namedb);
-    return out;
-  },
-  ls: async function (namedb) {
-    const out = await db.ls(namedb);
-    return out;
-  }
-};
-
-function initialize() {
-  nnotifer.init(db);
-	robot.login(discordtoken);
-  robot.on("ready", robotready);
-  if (tgEnabled) {
-    tgbot = new TelegramBot(secret[branchName].telegram, { polling: true });
-  }
-  main();
-}
-function isOutsideAcc(userid) {
-  return String(Number(userid)) == 'NaN';
-}
-
-function nicknames(msg) {
-  return '@' + msg.author.username + '#' + msg.author.discriminator;
-}
-async function checkAdminTG (chatId, userid) {
-  const array = await tgbot.getChatAdministrators(chatId);
-  for (let i = 0; i < array.length; i++) {
-    const user = array[i].user;
-    if(user.id == userid){
-      return true;
+    if (success){
+      msgs.slice(i, 1);
     }
+    // remove msg
   }
-  return false;
 }
 
 const SimaBot = async function (msg){
   var serviceName = 'discord';
   var userid, nickname, guildId = 0, channelId = msg.channelId, isDM = false;
-  var isOP = false;
+  var isOP = -1;
   guildId = msg.guildId;
   if(!!msg.from){
     serviceName = 'telegram';
@@ -439,11 +230,6 @@ const SimaBot = async function (msg){
     nickname = '@' + msg.from.username;
     channelId = guildId; 
     isDM = msg.chat.type == 'private';
-    if(isDM){
-      isOP = true;
-    }else{
-      isOP = await checkAdminTG(guildId, userid);
-    }
   }else{
     // Discord
     userid = msg.author.id;
@@ -451,13 +237,14 @@ const SimaBot = async function (msg){
     isDM = msg.guildId == null;
     if(isDM){
       guildId = userid;
-      isOP = true;
-    }else{
-      const member = robot.guilds.cache.get(guildId).members.cache.get(msg.author.id);
-      isOP = member.permissions.has(Permissions.FLAGS.ADMINISTRATOR);
     }
   }
-
+  if(isDM){
+    isOP = true;
+  }
+  if(isOP == -1){
+    isOP = await services[serviceName].isOP(guildId, userid);
+  }
   if(isDM){
     serviceName = serviceName + 'dm';
   }
@@ -531,7 +318,7 @@ const SimaBot = async function (msg){
     }
   }
   if(out.newBotDB){
-    console.log('TODO: remove globaldb and db.set from currentDB (272:app.js)');
+    console.log('TODO: remove globaldb and db.set from currentDB (314:app.js)');
     // await db.set(guildId, 'botdb', out[1]);
   }
   const needTranslate = false; // TODO
@@ -552,47 +339,16 @@ const SimaBot = async function (msg){
     return textout;
   }
 } 
-function main (){
-  tgbot.on('message', async (msg) => {
-    const chatId = msg.chat.id;
-    const isDM = msg.chat.type == 'private';
-    const lang = msg.from.language_code;
-    const bot = await SimaBot(msg);
-    const messageId = msg.message_id;
-    if (bot) {
-      var out = bot.substring(0, 4095);
-      if(out.startsWith('!!!')){
-        try{
-          
-        }catch(err){
-          tgbot.deleteMessage(chatId, messageId);
-        }
-      }else{
-        tgbot.sendMessage(chatId, out);
-      }
-    }
-  });
-  robot.on('messageCreate', async msg => {
-    if (msg.author.id == robot.user.id) {
-      return;
-    }
-    var out = await SimaBot(msg);
-    if(out){
-      if (typeof out == 'object') {
-        if (out.action == 'remove') {
-          msg.delete();
-          const modChannel = robot.channels.cache.get(out.idModChannel);
-          if(modChannel){
-            modChannel.send(out.reason);
-          }
-        }
-      }
-      if (typeof out == 'string') {
-        out = out.substring(0, 1999);
-        msg.channel.send(out);
-      }
-    }
-  });
+internal.simabot = SimaBot;
+
+function init() {
+  nnotifer.init(db);
+  initModules();
+  initServices();
+  notifer_send();
+  setInterval(async function () {
+    notifer_send();
+  }, 1000 * 10);
 }
 
-initialize();
+init();

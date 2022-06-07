@@ -1,12 +1,9 @@
 const ytdl = require("ytdl-core");
 const { joinVoiceChannel, demuxProbe, createAudioResource, createAudioPlayer, StreamType, AudioPlayerStatus, VoiceConnectionStatus, entersState } = require('@discordjs/voice');
-const webutils = require("./webutils.js");
-const random = require("./random.js");
-const wordutils = require("./wordutils.js");
-const textdb = require("./textdb.js");
+var webutils, random, textdb;
 var playlistSimaBot = [];
 var robot = null;
-const urlPlaylist = textdb.strings.spotifyURLPlaylist; // TODO
+var urlPlaylist;
 var instances = [];
 
 exports.getInstances = function (){
@@ -125,7 +122,14 @@ async function play(channel, url){
 	}
 }
 
-exports.init = function(client){
+exports.init = function(internal){
+	webutils = internal.webutils;
+	random = internal.random;
+	textdb = internal.textdb;
+	urlPlaylist = textdb.strings.spotifyURLPlaylist; // TODO
+}
+
+exports.start = function(client){
 	robot = client;
 	webutils.getPlaylist(urlPlaylist).then(function (e) {
 		playlistSimaBot = e;

@@ -1,6 +1,6 @@
 const axios = require('axios');
 const jsdom = require('jsdom');
-const textdb = require('./textdb.js');
+const textdb = require('../textdb.js');
 const debug = false;
 
 const monthsRUS = ['январ', 'феврал', 'март', 'апр', 'мая', 'июн', 'июл', 'август', 'сентябр', 'октябр', 'ноябр', 'декабр'];

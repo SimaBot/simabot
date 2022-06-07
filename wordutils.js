@@ -1,5 +1,5 @@
 const { log } = require('npmlog');
-const random = require('./random.js');
+const random = require('./modules/random.js');
 
 var bufferTextArray = {};
 

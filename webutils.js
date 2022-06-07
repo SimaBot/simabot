@@ -1,6 +1,6 @@
 const axios = require('axios');
 const jsdom = require('jsdom');
-const random = require('./random.js');
+const random = require('./modules/random.js');
 const { JSDOM } = jsdom;
 const SpotifyWebApi = require('spotify-web-api-node');
 var spotifyApi = new SpotifyWebApi();

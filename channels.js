@@ -1,7 +1,7 @@
-const entertainment = require('./entertainment.js');
+const entertainment = require('./modules/entertainment.js');
 // const fourpda = require('./fourpda.js');
-const vk = require('./vk.js');
-const roblox = require('./roblox.js');
+const vk = require('./modules/vk.js');
+const roblox = require('./modules/roblox.js');
 const webutils = require('./webutils.js');
 const simabot = require('./simabot.js');
 const translate = require('./translate.js');;
@@ -171,7 +171,7 @@ c.tgchannel = async function (a) {
           geyserUpdateChannel.send('<@&815223159002890280>');
           const embed = new Discord.MessageEmbed()
              .setColor('#34eb9e')
-             .setTitle('GeyserMC Android обновлен (updated)')
+             .setTitle('GeyserMC Android update')
              .setDescription(geyserInfo[0]+'\n(Size file) Размер файла: **' + geyserInfo[2] + '**\n(Build version) Версия сборки: **' + geyserInfo[3] + '**');
           geyserUpdateChannel.send(embed);
         }

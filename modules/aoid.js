@@ -3,6 +3,7 @@
 const urlWss = 'wss://gateway.discord.gg/?encoding=json&v=9&compress=zlib-stream';
 const debug = false;
 
+
 function log(text) {
   if(debug){
     console.log('AOID:', text);
@@ -87,7 +88,7 @@ function aoid(token, s){
   client.connect(urlWss);
 }
 
-exports.aoid = function(data) {
+function start(data) {
   if(typeof data != 'object'){
     return log('No data!');
   }
@@ -98,4 +99,8 @@ exports.aoid = function(data) {
   }else{
     aoid(data.token, data.status);
   }
+}
+
+exports.init = function(data) {
+  start(data.secret.aoid);
 }

@@ -1,4 +1,4 @@
-const webutils = require('./webutils.js');
+const webutils = require('../webutils.js');
 const axios = require('axios');
 axios.defaults.timeout = 5000;
 
