@@ -25,6 +25,10 @@
 - Add Instagram/Facebook browser/downloader.
 
 # Changes
+## 3.3.1:
+- Fixed https://github.com/SimaBot/simabot/issues/6
+- Now you can bot can be in different servers in same time to play radio.
+- You can change playlist and channel id for each server.
 ## 3.3.0:
 - Fix (a is not defined at Object.exports.rss - webutils.js:553:33).
 - Removed channels.js.

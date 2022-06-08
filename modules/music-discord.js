@@ -1,22 +1,32 @@
 const ytdl = require("ytdl-core");
 const { joinVoiceChannel, demuxProbe, createAudioResource, createAudioPlayer, StreamType, AudioPlayerStatus, VoiceConnectionStatus, entersState } = require('@discordjs/voice');
-var webutils, random, textdb;
-var playlistSimaBot = [];
-var robot = null;
-var urlPlaylist;
+var webutils, random, wordutils;
+var client = null, random = null;
 var instances = [];
 
 exports.getInstances = function (){
 	return instances;
 }
 
-async function randomSong() {
-	const videoName = playlistSimaBot[random.between(0, playlistSimaBot.length)];
+async function getSong(playlist, instance) {
+	var videoName;
+	if (instance.random){
+		if (random) {
+			videoName = playlist[random.between(0, playlist.length)];
+		}
+	} 
+	if (!videoName) {
+		videoName = playlist[instance.i];
+		instance.i++;
+	}
+	if(instance.i >= playlist.length){
+		instance.i = 0;
+	}
 	const videoId = await webutils.findVideo(videoName);
 	if(videoId){
 		return videoId;
 	}else{
-		return await randomSong();
+		return await getSong(playlist);
 	}
 }
 
@@ -52,7 +62,11 @@ async function getAudio(data){
 }
 async function instanceRunner(instance){
 	if(instance.radio){
-		instance.url = await randomSong();
+		if (instance.playlist){
+			instance.url = await getSong(instance.playlist, instance);
+		}else{
+			return;
+		}
 	}
 	instance.data = await getAudio(instance.url);
 	if(!instance.data){
@@ -95,7 +109,7 @@ async function instanceRunner(instance){
 	}
 }
 
-async function play(channel, url){
+async function play(channel, url, playlist){
 	// console.log(channel, url);
 	//TODO: Top level - check if user have permissions.
 	if (!channel.isVoice()){
@@ -104,7 +118,22 @@ async function play(channel, url){
 	if(!url){
 		url = null;
 	}
-	const permissions = channel.permissionsFor(robot.user);
+	if(playlist){
+		if(!Array.isArray(playlist)){
+			try {
+				const url = new URL(playlist);
+				if (url.hostname == 'open.spotify.com') {
+					playlist = await webutils.getPlaylist(playlist);
+				}
+			} catch (error) {
+
+			}
+			if(!Array.isArray(playlist)){
+				return { error: 'Invalid playlist' };
+			}
+		}
+	}
+	const permissions = channel.permissionsFor(client.user);
 	if (permissions.has("CONNECT") && permissions.has("SPEAK")) {
 		var instance = getInstancesByGuildId(channel.guild.id);
 		if (!instance) {
@@ -113,7 +142,10 @@ async function play(channel, url){
 				list: [],
 				channel: channel,
 				radio: true,
-				guildId: channel.guild.id
+				guildId: channel.guild.id,
+				playlist: playlist,
+				i: 0,
+				random: true
 			}
 			instances.push(instance);
 			await instanceRunner(instance);
@@ -124,16 +156,15 @@ async function play(channel, url){
 
 exports.init = function(internal){
 	webutils = internal.webutils;
-	random = internal.random;
-	textdb = internal.textdb;
-	urlPlaylist = textdb.strings.spotifyURLPlaylist; // TODO
+	if(internal.modules.random){
+		random = internal.modules.random;
+	}
+	wordutils = internal.wordutils;
 }
 
-exports.start = function(client){
-	robot = client;
-	webutils.getPlaylist(urlPlaylist).then(function (e) {
-		playlistSimaBot = e;
-		client.channels.fetch('787757240135450637') // TODO: For every channel server
-			.then(channel => play(channel));
-	});
+exports.initClient = function(c){
+	client = c;
+}
+exports.start = function (channelId, url, playlist){
+	client.channels.fetch(channelId).then(channel => play(channel, url, playlist));
 }

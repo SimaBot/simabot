@@ -118,22 +118,39 @@ function changeStatus(){
     client.user.setPresence({ activities: [{ name: status }], status: 'idle' });
 }
 
-function clientready(e) {
-    const discordInviteURL = 'https://discord.com/api/oauth2/authorize?client_id=' + e.user.id + '&permissions=8&scope=bot';
-    console.log(internal.textdb.strings.discordReady + '\n' + discordInviteURL);
-    const music = internal.modules['music-discord'];
-    if(music){
-        music.start(client);
-        var oldInfoMusic = null;
+async function musicInit(music){ // TODO: Check update
+    music.initClient(client);
+    const servers = await internal.db.ls('config');
+    for (let i = 0; i < servers.length; i++) {
+        const id = servers[i];
+        if (id.startsWith('DBdiscord.')){
+            const guildId = id.split('.')[1];
+            const cfgServer = await internal.db.getCfgServer(id);
+            if(cfgServer.idRadioChannel != ' '){
+                music.start(cfgServer.idRadioChannel, null, cfgServer.playlistRadio);
+            }
+        }
+    }
+    var oldInfoMusic = null;
+    if (!internal.useBeta){
         setInterval(async function () {
-            if (music.getInstances().length > 0) {
-                const info = music.getInstances()[0].info;
+            const instances = music.getInstances();
+            if (instances.length > 0) {
+                const info = instances[0].info;
                 if (oldInfoMusic != info) {
                     await internal.db.setRadio(info);
                 }
                 oldInfoMusic = info;
             }
         }, 1000);
+    }
+}
+function clientready(e) {
+    const discordInviteURL = 'https://discord.com/api/oauth2/authorize?client_id=' + e.user.id + '&permissions=8&scope=bot';
+    console.log(internal.textdb.strings.discordReady + '\n' + discordInviteURL);
+    const music = internal.modules['music-discord'];
+    if(music){
+        musicInit(music);
     }
     changeStatus();
     setInterval(changeStatus, 1000);
