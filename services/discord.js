@@ -8,7 +8,7 @@ const client = new Discord.Client({
         'DIRECT_MESSAGES'
     ],
 });
-
+const serviceName = 'discord';
 var internal = null;
 
 function isOutsideAcc(userid) {
@@ -160,7 +160,17 @@ client.on('messageCreate', async msg => {
     if (msg.author.id == client.user.id) {
         return;
     }
-    var out = await internal.simabot(msg);
+    const crossmsg = {
+        serviceName: serviceName,
+        userid: msg.author.id,
+        nickname: '<@' + msg.author.id + '>',
+        channelId: msg.channel.id,
+        isDM: msg.guildId == null,
+        guildId: msg.guildId || msg.author.id,
+        content: msg.content,
+        msg: msg
+    };
+    var out = await internal.simabot(crossmsg);
     if (out) {
         if (typeof out == 'object') {
             if (out.action == 'remove') {

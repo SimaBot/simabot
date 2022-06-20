@@ -185,48 +185,32 @@ process.on('uncaughtException', function (error) {
 });
 
 const SimaBot = async function (msg){
-  var serviceName = 'discord';
-  var userid, nickname, guildId = 0, channelId = msg.channelId, isDM = false;
-  var isOP = -1;
-  guildId = msg.guildId;
-  if(!!msg.from){
-    serviceName = 'telegram';
-    guildId = msg.chat.id;
-    userid = msg.from.id;
-    nickname = '@' + msg.from.username;
-    channelId = guildId; 
-    isDM = msg.chat.type == 'private';
-  }else{
-    // Discord
-    userid = msg.author.id;
-    nickname = '<@' + msg.author.id + '>';
-    isDM = msg.guildId == null;
-    if(isDM){
-      guildId = userid;
-    }
+  if (!msg.guildId){
+    msg.guildId = msg.channelId;
   }
-  if(isDM){
-    isOP = true;
+  var guildId = msg.guildId
+  if(msg.isDM){
+    msg.isOP = true;
   }
-  if(isOP == -1){
-    isOP = await services[serviceName].isOP(guildId, userid);
+  if (!msg.isOP){
+    msg.isOP = await services[msg.serviceName].isOP(guildId, msg.userid);
   }
-  if(isDM){
-    serviceName = serviceName + 'dm';
+  if(msg.isDM){
+    msg.serviceName += 'dm';
   }
-  guildId = serviceName + '.' + guildId;
-  const text = msg.text || msg.content;
+  guildId = msg.serviceName + '.' + guildId;
+  const text = msg.content;
   var translatedText = text;
   if (modules.translate){
     translatedText = await modules.translate.toRu(text);
   }
   
   if (text.indexOf(textdb.strings.domain + '/') > -1){
-    if(!isOP){
+    if (!msg.isOP){
       return textdb.strings.noOP;
     }
     if (modules.notifer){
-      const out = await modules.notifer.addNotify(text, guildId, channelId);
+      const out = await modules.notifer.addNotify(text, guildId, msg.channelId);
       if(out){
         return '⚠️: ' + out + '\n🔗: ' + textdb.strings.websiteURL;
       }else{
@@ -249,11 +233,11 @@ const SimaBot = async function (msg){
 
   const config = {
     msg: translatedText || text,
-    userid: userid,
-    nickname: nickname,
-    isDM: isDM,
+    userid: msg.userid,
+    nickname: msg.nickname,
+    isDM: msg.isDM,
     originalansw: text,
-    channelid: channelId,
+    channelid: msg.channelId,
     botdb: botdb,
     badwords: currentDB.badwords,
     goodwords: currentDB.goodwords,
@@ -261,7 +245,7 @@ const SimaBot = async function (msg){
     detectionBadwordsPercent: cfgServer.detectionBadwords,
     detectionRateKeyword: cfgServer.detectionRateKeyword,
     detectionRate: cfgServer.aiPercent,
-    isOP: isOP,
+    isOP: msg.isOP,
     blockAd: cfgServer.blockAd,
     detectSpam: cfgServer.detectSpam
   };
@@ -285,7 +269,7 @@ const SimaBot = async function (msg){
     const cmd = out.out.replaceAll('/', '');
     switch (cmd) {
       case 'db':
-        return await db.helper(text, guildId, userid);
+        return await db.helper(text, guildId, msg.userid);
       default:
         return;
     }

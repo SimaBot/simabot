@@ -25,6 +25,10 @@
 - Add Instagram/Facebook browser/downloader.
 
 # Changes
+## 3.3.2:
+- Upgraded packages to latest versions.
+- Fixed Telegram service.
+- Optimized app.js.
 ## 3.3.1:
 - Fixed https://github.com/SimaBot/simabot/issues/6
 - Now you can bot can be in different servers in same time to play radio.
